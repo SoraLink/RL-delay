@@ -1,11 +1,12 @@
 import numpy as np
 import tensorflow as tf
 class DNN():
-    def __init__(self,sess,scope,hidden_units,input):
+    def __init__(self,sess,scope,hidden_units,input,output_dim):
         self.input = input
         self.sess = sess
         self.scope = scope
         self.hidden_units = hidden_units
+        self.output_dim = output_dim
         self.output = self.create_network()
 
     def create_network(self):
@@ -13,6 +14,8 @@ class DNN():
             out = self.input
             for i, hidden in enumerate(self.hidden_units):
                 out = tf.nn.tanh(tf.layers.dense(out, hidden, name="fc%i" % (i + 1),
+                                                 kernel_initializer=tf.random_normal_initializer(stddev=1.0,mean=0)))
+            out = tf.nn.relu(tf.layers.dense(out, self.output_dim, name="fc%i" % (i + 1),
                                                  kernel_initializer=tf.random_normal_initializer(stddev=1.0,mean=0)))
         return out
 
