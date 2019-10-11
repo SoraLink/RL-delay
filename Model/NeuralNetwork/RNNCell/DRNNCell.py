@@ -1,5 +1,5 @@
 import tensorflow as tf
-from tensorflow.nn.rnn_cell import RNNCell
+from tensorflow.nn.rnn_cell import GRUCell
 from tensorflow.python.keras import activations
 from tensorflow.python.ops import math_ops
 from tensorflow.python.util import nest
@@ -7,13 +7,16 @@ from tensorflow.python.framework import dtypes
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import nn_ops
 from tensorflow.python.ops import init_ops
+from tensorflow.keras.layers import Dense
+
+from tensorflow.nn.rnn_cell import LSTMCell
 
 _BIAS_VARIABLE_NAME = "bias"
 _WEIGHTS_VARIABLE_NAME = "kernel"
 
-class DRNNCell(RNNCell):
+class DRNNCell(GRUCell):
 
-    def __init__(self,num_units,
+    def __init__(self,num_units, transition_units,
                  activation=None,
                  reuse=None,
                  kernel_initializer=None,
@@ -23,6 +26,7 @@ class DRNNCell(RNNCell):
                  **kwargs):
         super(DRNNCell, self).__init__(_reuse = reuse, name = name,dtype=dtype,**kwargs)
         self._num_units = num_units
+        self._transition_units = transition_units
         if activation:
             self._activation = activations.get(activation)
         else:
@@ -64,12 +68,12 @@ class DRNNCell(RNNCell):
             initializer=(self._bias_initializer
                          if self._bias_initializer is not None else
                          init_ops.zeros_initializer(dtype=self.dtype)))
-
         self.built = True
 
-    def call(self, inputs, state):
-        _check_rnn_cell_input_dtypes([inputs,state])
-        input, rnn_state = state
+    def call(self, action, state):
+        _check_rnn_cell_input_dtypes([action,state])
+        inputs = array_ops.slice(state,[0,0],[-1,self._transition_units])
+        state = array_ops.slice(state,[0,self._transition_units],[-1,self._num_units])
         gate_inputs = math_ops.matmul(
             array_ops.concat([inputs, state], 1), self._gate_kernel)
         gate_inputs = nn_ops.bias_add(gate_inputs, self._gate_bias)
@@ -85,7 +89,10 @@ class DRNNCell(RNNCell):
 
         c = self._activation(candidate)
         new_h = u * state + (1 - u) * c
-        return new_h, new_h
+        outputs = Dense(self._transition_units)(new_h)
+        outputs = Dense(self._transition_units)(outputs)
+        next_state = array_ops.concat([outputs,new_h],1)
+        return outputs, next_state
 
 
 def _check_rnn_cell_input_dtypes(inputs):
