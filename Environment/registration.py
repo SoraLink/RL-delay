@@ -4,7 +4,7 @@ import time
 
 class EnvRegistry(threading.Thread):
 
-    def __init__(self, task):
+    def __init__(self, task, transmit_delay, receive_delay):
         threading.Thread.__init__(self)
         self.env = gym.make(task)
         self.action_space = self.env.action_space
@@ -13,16 +13,20 @@ class EnvRegistry(threading.Thread):
         self.reward_range = self.env.reward_range
         self.if_stop = False
         self.if_pause = False
+        self.transmit_delay = transmit_delay
+        self.receive_delay = receive_delay
+        self.action_queue = []
+        self.action_and_state = []
 
     def run(self):
         self.env.reset()
         while True:
             if self.if_stop:
                 break
-            self.sleep()
-            self.observation, self.reward, self.done, self.info = self.env.step(self.action)
-            if self.done:
-                self.pause = True
+            # self.observation, self.reward, self.done, self.info = self.env.step(self.action)
+            if len(self.action_queue) > self.transmit_delay:
+                self.action_and_state.append(self.env.step(self.action_queue.pop()))
+            if self.if_pause:
                 self.sleep()
 
     def restart(self):
@@ -38,5 +42,17 @@ class EnvRegistry(threading.Thread):
         while self.if_pause:
             time.sleep(pause_time)
 
+    def step(self, action):
+        self.action_queue.append(action)
+        if len(self.action_and_state) < self.receive_delay:
+            return None
+        else:
+            pair = self.action_and_state.pop()
+            return pair
 
 
+
+# Example:
+# env_thread = EnvRegistry("task name")
+# env_thread.start()
+# env_thread.step(action="0.01")
