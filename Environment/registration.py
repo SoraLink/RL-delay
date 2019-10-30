@@ -5,7 +5,7 @@ import tensorflow as tf
 
 class EnvRegistry(threading.Thread):
 
-    def __init__(self, task, transmit_delay=20, receive_delay=20, num_of_episode=1000):
+    def __init__(self, task, transmit_delay=2, receive_delay=2, num_of_episode=1000):
         threading.Thread.__init__(self)
         self.env = gym.make(task)
         self.action_space = self.env.action_space
