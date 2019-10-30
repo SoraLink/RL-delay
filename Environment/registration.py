@@ -1,14 +1,14 @@
 import gym
 import threading
 import time
+import tensorflow as tf
 
 class EnvRegistry(threading.Thread):
 
-    def __init__(self, task, transmit_delay, receive_delay):
+    def __init__(self, task, transmit_delay=20, receive_delay=20):
         threading.Thread.__init__(self)
         self.env = gym.make(task)
         self.action_space = self.env.action_space
-        self.action = self.env.action_space.sample()
         self.observation_space = self.env.observation_space
         self.reward_range = self.env.reward_range
         self.if_stop = False
@@ -20,20 +20,25 @@ class EnvRegistry(threading.Thread):
 
     def run(self):
         self.env.reset()
-        while True:
-            if self.if_stop:
-                break
-            # self.observation, self.reward, self.done, self.info = self.env.step(self.action)
-            if len(self.action_queue) > self.transmit_delay:
-                self.action_and_state.append(self.env.step(self.action_queue.pop()))
-            if self.if_pause:
-                self.sleep()
-
-    def restart(self):
-        self.pause = False
-
-    def pause(self):
-        self.pause =True
+        for i_episode in range():
+            self.env.reset()
+            while True:
+                self.env.render()
+                if self.if_stop:
+                    break
+                # self.observation, self.reward, self.done, self.info = self.env.step(self.action)
+                if len(self.action_queue) > self.transmit_delay:
+                    observation, reward, done, info = self.env.step(self.action_queue[0])
+                    self.action_and_state.append([observation, reward, done, info, self.action_queue.pop()])
+                    if done:
+                        self.if_pause = True
+                else:
+                    observation, reward, done, info = self.env.step(self.action_space.sample())
+                    self.action_and_state.append([observation, reward, done, info, self.action_queue.pop()])
+                    if done:
+                        self.if_pause = True
+                if self.if_pause:
+                    self.sleep()
 
     def stop(self):
         self.if_stop = True
