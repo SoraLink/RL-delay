@@ -24,7 +24,7 @@ class EnvRegistry(threading.Thread):
         for i_episode in range(self.num_of_episode):
             self.env.reset()
             while True:
-                print(len(self.action_queue))
+                print(len(self.action_queue)>self.transmit_delay)
                 # self.env.render()
                 if self.if_stop:
                     break
