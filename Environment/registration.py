@@ -20,8 +20,8 @@ class EnvRegistry(threading.Thread):
         self.num_of_episode = num_of_episode
 
     def run(self):
-        self.env.reset(self.num_of_episode)
-        for i_episode in range():
+        self.env.reset()
+        for i_episode in range(self.num_of_episode):
             self.env.reset()
             while True:
                 self.env.render()
