@@ -5,7 +5,7 @@ import tensorflow as tf
 
 class EnvRegistry(threading.Thread):
 
-    def __init__(self, task, transmit_delay=20, receive_delay=20):
+    def __init__(self, task, transmit_delay=20, receive_delay=20, num_of_episode = 1000):
         threading.Thread.__init__(self)
         self.env = gym.make(task)
         self.action_space = self.env.action_space
@@ -17,9 +17,10 @@ class EnvRegistry(threading.Thread):
         self.receive_delay = receive_delay
         self.action_queue = []
         self.action_and_state = []
+        self.num_of_episode = num_of_episode
 
     def run(self):
-        self.env.reset()
+        self.env.reset(self.num_of_episode)
         for i_episode in range():
             self.env.reset()
             while True:
