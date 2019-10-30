@@ -42,6 +42,9 @@ class EnvRegistry(threading.Thread):
                 if self.if_pause:
                     self.sleep()
 
+    def restart(self):
+        self.if_pause = False
+
     def stop(self):
         self.if_stop = True
 

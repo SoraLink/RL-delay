@@ -17,6 +17,8 @@ def test():
             print("info: ", info)
             print("action: ", action)
             time.sleep(0.01)
+            if done:
+                env.restart()
 
 
 
