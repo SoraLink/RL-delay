@@ -46,6 +46,7 @@ class EnvRegistry(threading.Thread):
         self.if_stop = True
 
     def sleep(self, pause_time=0.01):
+        print("sleeping...")
         while self.if_pause:
             time.sleep(pause_time)
 
