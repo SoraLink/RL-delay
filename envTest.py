@@ -2,7 +2,7 @@ from Environment.registration import EnvRegistry
 import time
 
 def test():
-    env = EnvRegistry("CartPole-v1",20,20)
+    env = EnvRegistry("CartPole-v1",2,2)
     env.start()
     while True:
         action = env.action_space.sample()
