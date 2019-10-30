@@ -25,7 +25,7 @@ class EnvRegistry(threading.Thread):
             self.env.reset()
             while True:
                 print(len(self.action_and_state))
-                # self.env.render()
+                self.env.render()
                 if self.if_stop:
                     break
                 # self.observation, self.reward, self.done, self.info = self.env.step(self.action)
@@ -41,6 +41,7 @@ class EnvRegistry(threading.Thread):
                         self.if_pause = True
                 if self.if_pause:
                     self.sleep()
+                    break
 
     def restart(self):
         self.if_pause = False
