@@ -36,7 +36,7 @@ class EnvRegistry(threading.Thread):
                         self.if_pause = True
                 else:
                     observation, reward, done, info = self.env.step(self.action_space.sample())
-                    self.action_and_state.append([observation, reward, done, info, self.action_queue.pop()])
+                    self.action_and_state.append([observation, reward, done, info, None])
                     if done:
                         self.if_pause = True
                 if self.if_pause:
