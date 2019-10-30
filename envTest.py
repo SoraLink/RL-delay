@@ -7,7 +7,7 @@ def test():
         action = env.action_space.sample()
         feedback = env.step(action)
         if feedback is None:
-            print("Delaying...")
+            continue
         else:
             observation, reward, done, info, action = feedback
             print("Observation: ", observation)
