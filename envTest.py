@@ -1,4 +1,5 @@
 from Environment.registration import EnvRegistry
+import time
 
 def test():
     env = EnvRegistry("CartPole-v1",20,20)
@@ -15,6 +16,7 @@ def test():
             print("done: ", done)
             print("info: ", info)
             print("action: ", action)
+            time.sleep(0.01)
 
 
 

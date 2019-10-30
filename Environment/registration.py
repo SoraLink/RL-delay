@@ -24,7 +24,7 @@ class EnvRegistry(threading.Thread):
         for i_episode in range(self.num_of_episode):
             self.env.reset()
             while True:
-                print(len(self.action_and_state))
+                print(len(self.action_queue))
                 # self.env.render()
                 if self.if_stop:
                     break
