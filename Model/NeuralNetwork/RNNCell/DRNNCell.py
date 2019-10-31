@@ -4,6 +4,9 @@ from tensorflow.python.ops import array_ops
 from tensorflow.python.keras import backend as K
 from tensorflow.python.keras.layers import GRUCell
 from tensorflow.python.keras.layers import Dense
+from tensorflow.python.keras.layers import LSTMCell
+from tensorflow.python.keras.layers import GRU
+import tensorflow as tf
 
 _BIAS_VARIABLE_NAME = "bias"
 _WEIGHTS_VARIABLE_NAME = "kernel"
@@ -51,17 +54,10 @@ class DRNNCell(GRUCell):
         )
         self._transition_units = transition_units
 
-    @property
-    def state_size(self):
-        return self.units
-
-    @property
-    def output_size(self):
-        return self.units
-
     def call(self, action, states, training=None):
         h_tm1 = states[0]  # previous memory
         inputs = states[1] # previous output
+        # h_tm1, inputs = tf.split(states[0], self.units)
         dp_mask = self.get_dropout_mask_for_cell(inputs, training, count=3)
         rec_dp_mask = self.get_recurrent_dropout_mask_for_cell(
             h_tm1, training, count=3)
@@ -165,6 +161,7 @@ class DRNNCell(GRUCell):
         h = z * h_tm1 + (1 - z) * hh
         outputs = Dense(self._transition_units)(h)
         outputs = Dense(self._transition_units)(outputs)
+        # h = tf.concat([h, outputs], 0)
         return outputs, [h, outputs]
         # _check_rnn_cell_input_dtypes([action,state])
         # inputs = array_ops.slice(state,[0,0],[-1,self._transition_units])
@@ -188,36 +185,5 @@ class DRNNCell(GRUCell):
         # outputs = Dense(self._transition_units)(outputs)
         # next_state = array_ops.concat([outputs,new_h],1)
         # return outputs, next_state
-
-
-def _check_rnn_cell_input_dtypes(inputs):
-  """Check whether the input tensors are with supported dtypes.
-
-  Default RNN cells only support floats and complex as its dtypes since the
-  activation function (tanh and sigmoid) only allow those types. This function
-  will throw a proper error message if the inputs is not in a supported type.
-
-  Args:
-    inputs: tensor or nested structure of tensors that are feed to RNN cell as
-      input or state.
-
-  Raises:
-    ValueError: if any of the input tensor are not having dtypes of float or
-      complex.
-  """
-  for t in nest.flatten(inputs):
-    _check_supported_dtypes(t.dtype)
-
-
-def _check_supported_dtypes(dtype):
-  if dtype is None:
-    return
-  dtype = dtypes.as_dtype(dtype)
-  if not (dtype.is_floating or dtype.is_complex):
-    raise ValueError("RNN cell only supports floating point inputs, "
-                     "but saw dtype: %s" % dtype)
-
-
-
 
 
