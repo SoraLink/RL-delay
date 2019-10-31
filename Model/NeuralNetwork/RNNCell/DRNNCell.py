@@ -159,7 +159,8 @@ class DRNNCell(GRUCell):
             hh = self.activation(x_h + recurrent_h)
         # previous and candidate state mixed by update gate
         h = z * h_tm1 + (1 - z) * hh
-        outputs = Dense(self._transition_units)(h)
+        outputs = array_ops.concat([h, action],0)
+        outputs = Dense(self._transition_units)(outputs)
         outputs = Dense(self._transition_units)(outputs)
         # h = tf.concat([h, outputs], 0)
         return outputs, [h, outputs]
