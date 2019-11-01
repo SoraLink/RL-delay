@@ -15,6 +15,7 @@ class DRNNCell(GRUCell):
     def __init__(self,
                units,
                transition_units,
+               observation_space,
                activation='tanh',
                recurrent_activation='hard_sigmoid',
                use_bias=True,
@@ -53,7 +54,40 @@ class DRNNCell(GRUCell):
             **kwargs
         )
         self._transition_units = transition_units
-        self.state_size = [units, units]
+        self.state_size = [units, observation_space]
+
+    def build(self, input_shape):
+        input_dim = self.state_size[-1]
+        self.kernel = self.add_weight(
+            shape=(input_dim, self.units * 3),
+            name='kernel',
+            initializer=self.kernel_initializer,
+            regularizer=self.kernel_regularizer,
+            constraint=self.kernel_constraint)
+        self.recurrent_kernel = self.add_weight(
+            shape=(self.units, self.units * 3),
+            name='recurrent_kernel',
+            initializer=self.recurrent_initializer,
+            regularizer=self.recurrent_regularizer,
+            constraint=self.recurrent_constraint)
+
+        if self.use_bias:
+            if not self.reset_after:
+                bias_shape = (3 * self.units,)
+            else:
+                # separate biases for input and recurrent kernels
+                # Note: the shape is intentionally different from CuDNNGRU biases
+                # `(2 * 3 * self.units,)`, so that we can distinguish the classes
+                # when loading and converting saved weights.
+                bias_shape = (2, 3 * self.units)
+            self.bias = self.add_weight(shape=bias_shape,
+                                        name='bias',
+                                        initializer=self.bias_initializer,
+                                        regularizer=self.bias_regularizer,
+                                        constraint=self.bias_constraint)
+        else:
+            self.bias = None
+        self.built = True
 
     def call(self, action, states, training=None):
         h_tm1 = states[0]  # previous memory
@@ -160,9 +194,12 @@ class DRNNCell(GRUCell):
             hh = self.activation(x_h + recurrent_h)
         # previous and candidate state mixed by update gate
         h = z * h_tm1 + (1 - z) * hh
-        outputs = array_ops.concat([h, action],0)
+        # print(h)
+        # print(action)
+        outputs = array_ops.concat([h, action],1)
         outputs = Dense(self._transition_units)(outputs)
         outputs = Dense(self._transition_units)(outputs)
+        outputs = Dense(self.state_size[-1])(outputs)
         # h = tf.concat([h, outputs], 0)
         return outputs, [h, outputs]
         # _check_rnn_cell_input_dtypes([action,state])
