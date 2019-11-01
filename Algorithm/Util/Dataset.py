@@ -23,9 +23,8 @@ class Dataset():
         for i in range (0,num):
             indexes.append(Random.randint(0,len(self.pairs)))
         results = [[],[]]
-        for j in indexes:
-            results[0].append(self.pairs[index] for index in indexes )
-            results[1].append(self.rewards[index] for index in indexes)
-
+        results[0].append(self.pairs[index] for index in indexes )
+        results[1].append(self.rewards[index] for index in indexes)
+        return results
 
 

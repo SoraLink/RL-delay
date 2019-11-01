@@ -1,7 +1,8 @@
+from Environment.registration import EnvRegistry
 class StateActionPair():
-    def __init__(self, state):
+    def __init__(self, state, actions):
         self.state = state
-        self.actions = []
+        self.actions = actions
 
     def get_actions(self):
         return self.actions

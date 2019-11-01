@@ -2,6 +2,7 @@ import gym
 import threading
 import time
 import tensorflow as tf
+import copy
 
 class EnvRegistry(threading.Thread):
 
@@ -15,7 +16,7 @@ class EnvRegistry(threading.Thread):
         self.if_pause = False
         self.transmit_delay = transmit_delay
         self.receive_delay = receive_delay
-        self.action_queue = []
+        self.action_queue = [tf.zeros(self.env.action_space)] * transmit_delay
         self.action_and_state = []
         self.num_of_episode = num_of_episode
 
@@ -29,21 +30,17 @@ class EnvRegistry(threading.Thread):
                 if self.if_stop:
                     break
                 # self.observation, self.reward, self.done, self.info = self.env.step(self.action)
-                if len(self.action_queue) > self.transmit_delay:
-                    observation, reward, done, info = self.env.step(self.action_queue[0])
-                    self.action_and_state.append([observation, reward, done, info, self.action_queue.pop()])
-                    if done:
-                        self.if_pause = True
-                else:
-                    observation, reward, done, info = self.env.step(self.action_space.sample())
-                    self.action_and_state.append([observation, reward, done, info, None])
-                    if done:
-                        self.if_pause = True
-                if self.if_pause:
+                observation, reward, done, info = self.env.step(self.action_queue[0])
+                self.action_and_state.append([observation, reward, done, info, copy.copy(self.action_queue)])
+                self.action_queue.pop()
+                if done:
+                    self.if_pause = True
                     self.sleep()
                     break
 
     def restart(self):
+        self.action_queue = []
+        self.action_and_state = []
         self.if_pause = False
 
     def stop(self):
@@ -54,8 +51,8 @@ class EnvRegistry(threading.Thread):
         while self.if_pause:
             time.sleep(pause_time)
 
-    def step(self, action):
-        self.action_queue.append(action)
+    def step(self, action, id):
+        self.action_queue.append([action, id])
         if len(self.action_and_state) < self.receive_delay:
             return None
         else:
