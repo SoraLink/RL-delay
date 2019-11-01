@@ -4,6 +4,7 @@ from Model.NeuralNetwork.RNNCell.DRNNCell import DRNNCell
 from tensorflow.python.platform import tf_logging as logging
 from tensorflow.python.keras import regularizers
 from tensorflow.python.keras.engine.input_spec import InputSpec
+from tensorflow.keras.layers import GRU
 
 class DRNN(RNN):
     def __init__(self,

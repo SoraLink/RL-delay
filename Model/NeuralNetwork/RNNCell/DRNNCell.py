@@ -53,6 +53,7 @@ class DRNNCell(GRUCell):
             **kwargs
         )
         self._transition_units = transition_units
+        self.state_size = [units, units]
 
     def call(self, action, states, training=None):
         h_tm1 = states[0]  # previous memory
