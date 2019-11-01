@@ -19,6 +19,7 @@ class EnvRegistry(threading.Thread):
         self.action_queue = [tf.zeros(self.env.action_space)] * transmit_delay
         self.action_and_state = []
         self.num_of_episode = num_of_episode
+        self.last_action = tf.zeros(self.env.action_space)
 
     def run(self):
         self.env.reset()
@@ -30,9 +31,19 @@ class EnvRegistry(threading.Thread):
                 if self.if_stop:
                     break
                 # self.observation, self.reward, self.done, self.info = self.env.step(self.action)
-                observation, reward, done, info = self.env.step(self.action_queue[0])
-                self.action_and_state.append([observation, reward, done, info, copy.copy(self.action_queue)])
-                self.action_queue.pop()
+                if(len(self.action_space)>= self.transmit_delay):
+                    observation, reward, done, info = self.env.step(self.action_queue[0])
+                    self.last_action = self.action_queue[0]
+                    self.action_and_state.append([observation, reward, done, info, copy.copy(self.action_queue)])
+                    self.action_queue.pop()
+                else:
+                    observation, reward, done, info = self.env.step(self.last_action)
+                    self.action_and_state.append([observation, reward, done, info, copy.copy(self.action_queue)])
+
+                # 是否需要将超过上限的信息去除 造成信息丢失
+                if len(self.action_and_state) > self.receive_delay:
+                    self.action_and_state.pop()
+                time.sleep(0.01)
                 if done:
                     self.if_pause = True
                     self.sleep()
@@ -51,8 +62,11 @@ class EnvRegistry(threading.Thread):
         while self.if_pause:
             time.sleep(pause_time)
 
-    def step(self, action, id):
-        self.action_queue.append([action, id])
+    def step(self, action):
+        self.action_queue.append(action)
+        # 是否需要将超过上限的信息去除 造成信息丢失
+        if len(self.action_queue) > self.transmit_delay:
+            self.action_queue.pop()
         if len(self.action_and_state) < self.receive_delay:
             return None
         else:
