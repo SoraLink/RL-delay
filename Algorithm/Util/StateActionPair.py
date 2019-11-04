@@ -1,14 +1,14 @@
-from Environment.registration import EnvRegistry
-class StateActionPair():
-    def __init__(self, state, actions):
+class StateActionPair:
+    def __init__(self, state, actions, reward, done):
         self.state = state
         self.actions = actions
+        self.reward = reward
+        self.done = done
+        self.label = None
+        self.predicted_action = None
 
-    def get_actions(self):
-        return self.actions
+    def set_label(self, label):
+        self.label = label
 
-    def get_state(self):
-        return self.state
-
-    def add_action(self,action):
-        self.actions.append(action)
+    def set_predicted_action(self, action):
+        self.predicted_action = action
