@@ -10,16 +10,24 @@ def test():
         if feedback is None:
             continue
         else:
-            observation, reward, done, info, action = feedback
-            print("Observation: ", observation)
-            print("reward: ", reward)
-            print("done: ", done)
-            print("info: ", info)
-            print("action: ", action)
+            pair = feedback
+            print("Observation: ", pair.state)
+            print("reward: ", pair.reward)
+            print("done: ", pair.done)
+            print("label: ", pair.label)
+            print("actions: ", pair.actions)
             time.sleep(0.01)
-            if done:
+            if pair.done:
                 env.restart()
 
 
 if __name__ == '__main__':
     test()
+
+    # self.state = state
+    # self.actions = actions
+    # self.reward = reward
+    # self.done = done
+    # self.label = None
+    # self.predicted_action = None
+    # self.predicted_state = None
