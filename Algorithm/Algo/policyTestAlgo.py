@@ -3,7 +3,6 @@ from Environment.registration import EnvRegistry
 class PolicyTest():
     def __init__(self, task):
         self.env = EnvRegistry(task=task)
-        self.spec = self.env.spec
 
     def step(self, action):
         while True:
@@ -13,6 +12,8 @@ class PolicyTest():
                 return (pair.observation, pair.reward, pair.done, dict())
 
     def reset(self):
+        if self.env.if_pause is True:
+            self.env.restart()
         while True:
             observation = self.env.reset
             if observation:
