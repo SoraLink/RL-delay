@@ -3,6 +3,7 @@ from Environment.registration import EnvRegistry
 class PolicyTest():
     def __init__(self, task):
         self.env = EnvRegistry(task=task)
+        self.spec = self.env.spec
 
     def step(self, action):
         while True:
