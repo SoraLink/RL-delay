@@ -1,7 +1,7 @@
 from Environment.registration import EnvRegistry
 import time
 from sac.algos.sac import SAC
-from rllab.envs.normalized_env import normalize
+# from rllab.envs.normalized_env import normalize
 from sac.misc.instrument import run_sac_experiment
 from sac.misc.utils import timestamp, unflatten
 from sac.policies import GaussianPolicy, LatentSpacePolicy, GMMPolicy, UniformPolicy
@@ -9,9 +9,10 @@ from sac.misc.sampler import SimpleSampler
 from sac.replay_buffers import SimpleReplayBuffer
 from sac.value_functions import NNQFunction, NNVFunction
 from sac.preprocessors import MLPPreprocessor
-from variants import parse_domain_and_task, get_variants
+# from variants import parse_domain_and_task, get_variants
+from Algorithm.Algo.policyTestAlgo import PolicyTest
 
-
+print('import finished')
 
 def main():
     M = 64
@@ -27,7 +28,8 @@ def main():
     # sampler_params = variant['sampler_params']
 
 
-    env = EnvRegistry("CartPole-v1",2,2)
+    # env = EnvRegistry("CartPole-v1",2,2)
+    env = PolicyTest("CartPole-v1")
 
     pool = SimpleReplayBuffer(env_spec=env.spec, 
                               max_replay_buffer_size = 3000)

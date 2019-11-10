@@ -2,14 +2,15 @@ from Environment.registration import EnvRegistry
 
 class PolicyTest():
     def __init__(self, task):
-        self.env = EnvRegistry(taks=task)
+        self.env = EnvRegistry(task=task)
+        self.spec = self.env.spec
 
     def step(self, action):
         while True:
             pair = self.env.step(action)
             if pair:
                 #observation, reward, done
-                return [pair.observation, pair.reward, pair.done]
+                return (pair.observation, pair.reward, pair.done, dict())
 
     def reset(self):
         while True:
