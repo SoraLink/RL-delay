@@ -81,7 +81,7 @@ def main():
         # save_full_state=False,
     )
 
-    env.start()
+    # env.start()
     algorithm.train()
     # while True:
     #     action = env.action_space.sample()

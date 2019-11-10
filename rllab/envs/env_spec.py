@@ -1,5 +1,5 @@
 from rllab.core.serializable import Serializable
-from rllab.spaces.base import Space
+# from rllab.spaces.base import Space
 
 
 class EnvSpec(Serializable):

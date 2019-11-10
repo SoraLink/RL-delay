@@ -4,6 +4,8 @@ import time
 import tensorflow as tf
 import copy
 from Algorithm.Util.StateActionPair import StateActionPair
+from rllab.envs.env_spec import EnvSpec
+import numpy as np
 
 class EnvRegistry(threading.Thread):
 
@@ -20,9 +22,21 @@ class EnvRegistry(threading.Thread):
         self.action_queue = []
         self.action_and_state = []
         self.num_of_episode = num_of_episode
-        self.last_action = tf.zeros(self.env.action_space)
+        if isinstance(self.action_space, gym.spaces.discrete.Discrete):
+            self.last_action = 0
+        else:
+            self.last_action = np.zeros(self.env.action_space.shape)
+
         self.complete_data = []
-        self.spec = self.env.spec
+        # self.spec.action_space = self.env.action_space
+        # self.spec.observation_space = self.env.observation_space
+
+    @property
+    def spec(self):
+        return EnvSpec(
+            observation_space=self.env.observation_space,
+            action_space=self.env.action_space,
+        )
 
     def run(self):
         self.env.reset()
@@ -34,9 +48,9 @@ class EnvRegistry(threading.Thread):
                 if self.if_stop:
                     break
                 # self.observation, self.reward, self.done, self.info = self.env.step(self.action)
-                if len(self.action_space) > self.transmit_delay:
+                if len(self.action_queue) > self.transmit_delay:
                     raise Exception("length of action queue error")
-                if len(self.action_space) == self.transmit_delay:
+                if len(self.action_queue) == self.transmit_delay:
                     observation, reward, done, info = self.env.step(self.action_queue[0].predicted_action)
                     self.last_action = self.action_queue[0].predicted_action
                     self.action_queue[0].set_label(observation)
@@ -87,7 +101,12 @@ class EnvRegistry(threading.Thread):
 
     def fill_zeors(self):
         while len(self.action_and_state[-1].actions) < self.transmit_delay:
-            self.action_and_state[-1].actions.insert(0, tf.zeros((self.env.action_space,)))
+            if isinstance(self.action_space, gym.spaces.discrete.Discrete):
+                self.action_and_state[-1].actions.insert(0, 0)
+            else:
+                self.action_and_state[-1].actions.insert(0, np.zeros(self.env.action_space.shape))
+
+            # self.action_and_state[-1].actions.insert(0, np.zeros((self.env.action_space,)))
 
 
 def get_list_actions(pairs):
