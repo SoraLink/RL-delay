@@ -30,7 +30,6 @@ def main():
     domain = variant['domain']
 
     env = EnvRegistry("CartPole-v1",2,2)
-    env.spec = env.env.spec
 
     pool = SimpleReplayBuffer(env_spec=env.spec, **replay_buffer_params)
 
@@ -67,25 +66,23 @@ def main():
         save_full_state=False,
     )
 
-
-
-
     env.start()
-    while True:
-        action = env.action_space.sample()
-        feedback = env.step(action)
-        if feedback is None:
-            continue
-        else:
-            observation, reward, done, info, action = feedback
-            print("Observation: ", observation)
-            print("reward: ", reward)
-            print("done: ", done)
-            print("info: ", info)
-            print("action: ", action)
-            time.sleep(0.01)
-            if done:
-                env.restart()
+    algorithm.train()
+    # while True:
+    #     action = env.action_space.sample()
+    #     feedback = env.step(action)
+    #     if feedback is None:
+    #         continue
+    #     else:
+    #         observation, reward, done, info, action = feedback
+    #         print("Observation: ", observation)
+    #         print("reward: ", reward)
+    #         print("done: ", done)
+    #         print("info: ", info)
+    #         print("action: ", action)
+    #         time.sleep(0.01)
+    #         if done:
+    #             env.restart()
 
 
 if __name__ == '__main__':

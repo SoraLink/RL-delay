@@ -88,3 +88,4 @@ class SimpleReplayBuffer(ReplayBuffer, Serializable):
         self._terminals = np.fromstring(d['t'], dtype=np.uint8)
         self._top = d['top']
         self._size = d['size']
+

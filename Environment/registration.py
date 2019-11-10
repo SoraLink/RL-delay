@@ -22,6 +22,7 @@ class EnvRegistry(threading.Thread):
         self.num_of_episode = num_of_episode
         self.last_action = tf.zeros(self.env.action_space)
         self.complete_data = []
+        self.spec = self.env.spec
 
     def run(self):
         self.env.reset()
