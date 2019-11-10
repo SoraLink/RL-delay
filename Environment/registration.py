@@ -27,7 +27,7 @@ class EnvRegistry(threading.Thread):
     def run(self):
         self.env.reset()
         for i_episode in range(self.num_of_episode):
-            self.env.reset()
+            last_observation = self.env.reset()
             while True:
                 print(len(self.action_and_state))
                 self.env.render()
@@ -40,14 +40,17 @@ class EnvRegistry(threading.Thread):
                     observation, reward, done, info = self.env.step(self.action_queue[0].predicted_action)
                     self.last_action = self.action_queue[0].predicted_action
                     self.action_queue[0].set_label(observation)
-                    pair = StateActionPair(observation, get_list_actions(self.action_queue), reward, done)
+                    pair = StateActionPair(observation, get_list_actions(self.action_queue))
+                    self.action_queue[0].set_info(reward,last_observation,done)
                     self.action_and_state.append(pair)
                     self.complete_data.append(self.action_queue.pop())
+                    last_observation = observation
                 else:
                     observation, reward, done, info = self.env.step(self.last_action)
-                    pair = StateActionPair(observation, get_list_actions(self.action_queue), reward, done)
+                    pair = StateActionPair(observation, get_list_actions(self.action_queue))
                     self.action_and_state.append(pair)
                     self.fill_zeors()
+                    last_observation = observation
                 # time.sleep(0.01)
                 if done:
                     self.if_pause = True

@@ -17,7 +17,7 @@ def test():
             print("label: ", pair.label)
             print("actions: ", pair.actions)
             time.sleep(0.01)
-            if pair.done:
+            if pair.done :
                 env.restart()
 
 
