@@ -62,7 +62,12 @@ class EnvRegistry(threading.Thread):
             pair = self.action_and_state.pop()
             return pair
 
-
+# class Env_Spec:
+#     def __init__(self, obs_spec, act_spec):
+#         self.obs_spec = obs_spec
+#         self.act_spec = act_spec
+#
+#     def
 
 # Example:
 # env_thread = EnvRegistry("task name")
