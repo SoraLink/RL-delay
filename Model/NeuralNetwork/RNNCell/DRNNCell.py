@@ -4,6 +4,9 @@ from tensorflow.python.ops import array_ops
 from tensorflow.python.keras import backend as K
 from tensorflow.python.keras.layers import GRUCell
 from tensorflow.python.keras.layers import Dense
+from tensorflow.python.keras.layers import LSTMCell
+from tensorflow.python.keras.layers import GRU
+import tensorflow as tf
 
 _BIAS_VARIABLE_NAME = "bias"
 _WEIGHTS_VARIABLE_NAME = "kernel"
@@ -12,6 +15,7 @@ class DRNNCell(GRUCell):
     def __init__(self,
                units,
                transition_units,
+               observation_space,
                activation='tanh',
                recurrent_activation='hard_sigmoid',
                use_bias=True,
@@ -50,18 +54,45 @@ class DRNNCell(GRUCell):
             **kwargs
         )
         self._transition_units = transition_units
+        self.state_size = [units, observation_space]
 
-    @property
-    def state_size(self):
-        return self.units
+    def build(self, input_shape):
+        input_dim = self.state_size[-1]
+        self.kernel = self.add_weight(
+            shape=(input_dim, self.units * 3),
+            name='kernel',
+            initializer=self.kernel_initializer,
+            regularizer=self.kernel_regularizer,
+            constraint=self.kernel_constraint)
+        self.recurrent_kernel = self.add_weight(
+            shape=(self.units, self.units * 3),
+            name='recurrent_kernel',
+            initializer=self.recurrent_initializer,
+            regularizer=self.recurrent_regularizer,
+            constraint=self.recurrent_constraint)
 
-    @property
-    def output_size(self):
-        return self.units
+        if self.use_bias:
+            if not self.reset_after:
+                bias_shape = (3 * self.units,)
+            else:
+                # separate biases for input and recurrent kernels
+                # Note: the shape is intentionally different from CuDNNGRU biases
+                # `(2 * 3 * self.units,)`, so that we can distinguish the classes
+                # when loading and converting saved weights.
+                bias_shape = (2, 3 * self.units)
+            self.bias = self.add_weight(shape=bias_shape,
+                                        name='bias',
+                                        initializer=self.bias_initializer,
+                                        regularizer=self.bias_regularizer,
+                                        constraint=self.bias_constraint)
+        else:
+            self.bias = None
+        self.built = True
 
     def call(self, action, states, training=None):
         h_tm1 = states[0]  # previous memory
         inputs = states[1] # previous output
+        # h_tm1, inputs = tf.split(states[0], self.units)
         dp_mask = self.get_dropout_mask_for_cell(inputs, training, count=3)
         rec_dp_mask = self.get_recurrent_dropout_mask_for_cell(
             h_tm1, training, count=3)
@@ -163,8 +194,13 @@ class DRNNCell(GRUCell):
             hh = self.activation(x_h + recurrent_h)
         # previous and candidate state mixed by update gate
         h = z * h_tm1 + (1 - z) * hh
-        outputs = Dense(self._transition_units)(h)
+        # print(h)
+        # print(action)
+        outputs = array_ops.concat([h, action],1)
         outputs = Dense(self._transition_units)(outputs)
+        outputs = Dense(self._transition_units)(outputs)
+        outputs = Dense(self.state_size[-1])(outputs)
+        # h = tf.concat([h, outputs], 0)
         return outputs, [h, outputs]
         # _check_rnn_cell_input_dtypes([action,state])
         # inputs = array_ops.slice(state,[0,0],[-1,self._transition_units])
@@ -188,36 +224,5 @@ class DRNNCell(GRUCell):
         # outputs = Dense(self._transition_units)(outputs)
         # next_state = array_ops.concat([outputs,new_h],1)
         # return outputs, next_state
-
-
-def _check_rnn_cell_input_dtypes(inputs):
-  """Check whether the input tensors are with supported dtypes.
-
-  Default RNN cells only support floats and complex as its dtypes since the
-  activation function (tanh and sigmoid) only allow those types. This function
-  will throw a proper error message if the inputs is not in a supported type.
-
-  Args:
-    inputs: tensor or nested structure of tensors that are feed to RNN cell as
-      input or state.
-
-  Raises:
-    ValueError: if any of the input tensor are not having dtypes of float or
-      complex.
-  """
-  for t in nest.flatten(inputs):
-    _check_supported_dtypes(t.dtype)
-
-
-def _check_supported_dtypes(dtype):
-  if dtype is None:
-    return
-  dtype = dtypes.as_dtype(dtype)
-  if not (dtype.is_floating or dtype.is_complex):
-    raise ValueError("RNN cell only supports floating point inputs, "
-                     "but saw dtype: %s" % dtype)
-
-
-
 
 
