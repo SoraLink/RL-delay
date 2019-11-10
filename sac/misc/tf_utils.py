@@ -15,8 +15,8 @@ def create_session(**kwargs):
 
 def get_configuration():
     """ Returns personal tensorflow configuration. """
-    if config.USE_GPU:
-        raise NotImplementedError
+    # if config.USE_GPU:
+    #     raise NotImplementedError
 
     config_args = dict()
     return tf.ConfigProto(**config_args)

@@ -15,31 +15,44 @@ from variants import parse_domain_and_task, get_variants
 
 def main():
     M = 64
-    variant_generator = get_variants(domain=domain, task=task, policy=args.policy)
-    variants = variant_generator.variants()
-    variants = [unflatten(variant, separator='.') for variant in variants]
-    variant = variants[0] #TODO
-    env_params = variant['env_params']
-    policy_params = variant['policy_params']
-    value_fn_params = variant['value_fn_params']
-    algorithm_params = variant['algorithm_params']
-    replay_buffer_params = variant['replay_buffer_params']
-    sampler_params = variant['sampler_params']
+    # variant_generator = get_variants(domain=domain, task=task, policy=args.policy)
+    # variants = variant_generator.variants()
+    # variants = [unflatten(variant, separator='.') for variant in variants]
+    # variant = variants[0] #TODO
+    # env_params = variant['env_params']
+    # policy_params = variant['policy_params']
+    # value_fn_params = variant['value_fn_params']
+    # algorithm_params = variant['algorithm_params']
+    # replay_buffer_params = variant['replay_buffer_params']
+    # sampler_params = variant['sampler_params']
 
-    task = variant['task']
-    domain = variant['domain']
 
     env = EnvRegistry("CartPole-v1",2,2)
 
-    pool = SimpleReplayBuffer(env_spec=env.spec, **replay_buffer_params)
+    pool = SimpleReplayBuffer(env_spec=env.spec, 
+                              max_replay_buffer_size = 3000)
+
+    sampler_params = {'max_path_length':1000, 
+                      'min_pool_size': 500, 
+                      'batch_size': 200}
 
     sampler = SimpleSampler(**sampler_params)
 
-    base_kwargs = dict(algorithm_params['base_kwargs'], sampler=sampler)
+    base_kwargs = dict(n_epochs=1000,
+                       n_train_repeat=1,
+                       n_initial_exploration_steps=10000,
+                       epoch_length=1000,
+                       eval_n_episodes=10,
+                       eval_deterministic=True,
+                       eval_render=False,
+                       control_interval=1, 
+                       sampler=sampler)
+
+    
     policy = GaussianPolicy(
         env_spec=env.spec,
         hidden_layer_sizes=[M, M],
-        reparameterize=policy_params['reparameterize'],
+        reparameterize=True, # Hyper-param
         reg=1e-3,
     )
     initial_exploration_policy = UniformPolicy(env_spec=env.spec)
@@ -56,14 +69,14 @@ def main():
         qf1=qf1,
         qf2=qf2,
         vf=vf,
-        lr=algorithm_params['lr'],
-        scale_reward=algorithm_params['scale_reward'],
-        discount=algorithm_params['discount'],
-        tau=algorithm_params['tau'],
-        reparameterize=algorithm_params['reparameterize'],
-        target_update_interval=algorithm_params['target_update_interval'],
-        action_prior=policy_params['action_prior'],
-        save_full_state=False,
+        # lr=algorithm_params['lr'],
+        # scale_reward=algorithm_params['scale_reward'],
+        # discount=algorithm_params['discount'],
+        # tau=algorithm_params['tau'],
+        # reparameterize=algorithm_params['reparameterize'],
+        # target_update_interval=algorithm_params['target_update_interval'],
+        # action_prior=policy_params['action_prior'],
+        # save_full_state=False,
     )
 
     env.start()
