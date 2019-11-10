@@ -7,7 +7,7 @@ from Algorithm.Util.StateActionPair import StateActionPair
 
 class EnvRegistry(threading.Thread):
 
-    def __init__(self, task, transmit_delay=20, receive_delay=20, num_of_episode=100):
+    def __init__(self, task, transmit_delay=1, receive_delay=1, num_of_episode=100):
         threading.Thread.__init__(self)
         self.env = gym.make(task)
         self.action_space = self.env.action_space
@@ -40,14 +40,14 @@ class EnvRegistry(threading.Thread):
                     observation, reward, done, info = self.env.step(self.action_queue[0].predicted_action)
                     self.last_action = self.action_queue[0].predicted_action
                     self.action_queue[0].set_label(observation)
-                    pair = StateActionPair(observation, get_list_actions(self.action_queue))
+                    pair = StateActionPair(observation, get_list_actions(self.action_queue), reward, done)
                     self.action_queue[0].set_info(reward,last_observation,done)
                     self.action_and_state.append(pair)
                     self.complete_data.append(self.action_queue.pop())
                     last_observation = observation
                 else:
                     observation, reward, done, info = self.env.step(self.last_action)
-                    pair = StateActionPair(observation, get_list_actions(self.action_queue))
+                    pair = StateActionPair(observation, get_list_actions(self.action_queue), reward, done)
                     self.action_and_state.append(pair)
                     self.fill_zeors()
                     last_observation = observation
@@ -69,6 +69,13 @@ class EnvRegistry(threading.Thread):
         print("sleeping...")
         while self.if_pause:
             time.sleep(pause_time)
+
+    def reset(self):
+        if len(self.action_and_state) < self.receive_delay:
+            return None
+        else:
+            pair = self.action_and_state.pop()
+            return pair
 
     def step(self, pair):
         self.action_queue.append(pair)

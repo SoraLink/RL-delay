@@ -1,9 +1,9 @@
 class StateActionPair:
-    def __init__(self, state, actions):
+    def __init__(self, state, actions, reward, done):
         self.state = state
         self.actions = actions
-        self.reward = None
-        self.done = None
+        self.reward = reward
+        self.done = done
         self.label = None
         self.predicted_action = None
         self.predicted_state = None
