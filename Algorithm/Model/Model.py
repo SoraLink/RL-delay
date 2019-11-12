@@ -1,0 +1,72 @@
+import tensorflow as tf
+from Model.NeuralNetwork.RNNCell.DRNNCell import DRNNCell
+from tensorflow.python.keras.layers import RNN
+from Algorithm.Util.StateActionPair import StateActionPair
+
+class Model():
+    def __init__(self,
+                 sess,
+                 rnn_unit,
+                 nn_unit,
+                 delay,
+                 observation_space,
+                 action_space,
+                 scope,
+                 mask_value,
+                 ):
+        self.sess = sess
+        self.rnn_unit = rnn_unit
+        self.nn_unit = nn_unit
+        self.scope = scope
+        self.delay = delay
+        self.mask_value = mask_value
+        self.observation_space = observation_space
+        self.action_space = action_space
+        self.output, self.actions, self.init_observation = self.create_network()
+        self.target_output = tf.placeholder(tf.float32, [None, self.observation_space])
+        self.loss = tf.reduce_mean(tf.square(self.output-self.target_output))
+        self.update_method = tf.train.AdamOptimizer(1e-3)
+        self.update = self.update_method.minimize(self.loss)
+
+    def create_network(self):
+        with tf.variable_scope(self.scope):
+            actions = tf.placeholder(tf.float32, [None, self.delay, self.action_space])
+            init_observation = tf.placeholder(tf.float32, [None, self.observation_space])
+            init_state = tf.zeros([None, self.rnn_unit])
+            cell = DRNNCell(self.rnn_unit, self.nn_unit, self.observation_space)
+            rnn = RNN(cell)
+            output = tf.keras.layers.Masking(mask_value=self.mask_value)(actions)
+            output = rnn(inputs=output, initial_state=[init_state, init_observation])
+            return output, actions, init_observation
+
+    def get_param(self):
+        return tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=self.scope)
+
+    def get_trainable_param(self):
+        return tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=self.scope)
+
+    def pad_input(self, data):
+        data = tf.keras.preprocessing.sequence.pad_sequences(data, maxlen=self.delay, value=self.mask_value)
+        return data
+
+    def run(self, pair):
+        predicted_state = self.sess.run(self.output,feed_dict={
+            self.actions : [pair.actions],
+            self.init_observation : [pair.state]
+        })
+        pair.set_predicted_state(predicted_state)
+        return pair
+
+    def train(self, pairs):
+        actions, states = extract(pairs)
+        self.sess.run(self.update, feed_dict={
+            self.actions: actions,
+            self.init_observation: states
+        })
+
+def extract(pairs):
+    actions = list()
+    actions.append(pair.actions for pair in pairs)
+    states = list()
+    states.append(pair.state for pair in pairs)
+    return [actions, states]

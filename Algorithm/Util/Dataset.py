@@ -16,10 +16,10 @@ class Dataset():
 
     def get_instance_randomly(self, num):
         indexes = []
-        for i in range (0,num):
+        for i in range(0, num):
             indexes.append(Random.randint(0, len(self.pairs)))
-        results = []
-        results.append(self.pairs[index] for index in indexes )
+        results = list()
+        results.append(self.pairs[index] for index in indexes)
         return results
 
 
