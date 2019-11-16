@@ -3,7 +3,7 @@
 import tensorflow as tf
 from Model.NeuralNetwork.RNNCell.DRNNCell import DRNNCell
 from tensorflow.python.keras.layers import RNN
-from tensorflow.keras.layers import GRU
+from tensorflow.python.keras.layers import GRU
 
 def test():
     a = tf.placeholder(tf.float32, (None,10,2))
@@ -14,6 +14,7 @@ def test():
     # output = GRU(5)
     output = output(inputs = a, initial_state = [initial_state1, initial_state2])
     # output = output(inputs=a, initial_state=initial_state1)
+    print(output)
 
 
 if __name__ == '__main__':

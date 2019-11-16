@@ -2,8 +2,13 @@ from Environment.registration import EnvRegistry
 import time
 
 def test():
-    env = EnvRegistry("Hopper-v3",2,2)
-    env.start()
+    env = EnvRegistry("CartPoleBulletEnv-v1",2,2)
+    pair = env.reset()
+    while True:
+        action = env.action_space.sample()
+        pair.set_predicted_action(action)
+        pair = env.step(pair)
+        print(env.complete_data)
     # print(type(env.env.spec))
     # while True:
     #     action = env.action_space.sample()

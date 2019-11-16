@@ -3,6 +3,7 @@ from tensorflow.python.framework import dtypes
 from tensorflow.python.ops import array_ops
 from tensorflow.python.keras import backend as K
 from tensorflow.python.keras.layers import GRUCell
+from tensorflow.python.keras import activations
 from tensorflow.python.keras.layers import Dense
 from tensorflow.python.keras.layers import LSTMCell
 from tensorflow.python.keras.layers import GRU
@@ -22,6 +23,7 @@ class DRNNCell(GRUCell):
                kernel_initializer='glorot_uniform',
                recurrent_initializer='orthogonal',
                bias_initializer='zeros',
+               dnn_initializer='glorot_uniform',
                kernel_regularizer=None,
                recurrent_regularizer=None,
                bias_regularizer=None,
@@ -53,6 +55,7 @@ class DRNNCell(GRUCell):
             reset_after,
             **kwargs
         )
+        self.dnn_initializer = dnn_initializer
         self._transition_units = transition_units
         self.state_size = [units, observation_space]
 
@@ -71,6 +74,17 @@ class DRNNCell(GRUCell):
             regularizer=self.recurrent_regularizer,
             constraint=self.recurrent_constraint)
 
+        self.dnn_kernel = self.add_weight(
+            shape=(self.units+input_shape[-1], self._transition_units),
+            name='dnn_kernel',
+            initializer=self.dnn_initializer
+        )
+        self.output_kernel = self.add_weight(
+            shape=(self._transition_units, self.state_size[-1]),
+            name='dnn_kernel',
+            initializer=self.dnn_initializer
+        )
+
         if self.use_bias:
             if not self.reset_after:
                 bias_shape = (3 * self.units,)
@@ -85,6 +99,16 @@ class DRNNCell(GRUCell):
                                         initializer=self.bias_initializer,
                                         regularizer=self.bias_regularizer,
                                         constraint=self.bias_constraint)
+            self.dnn_bias = self.add_weight(shape=self._transition_units,
+                                        name='dnn_bias',
+                                        initializer=self.bias_initializer,
+                                        regularizer=self.bias_regularizer,
+                                        constraint=self.bias_constraint)
+            self.output_bias = self.add_weight(shape=self.state_size[-1],
+                                            name='output_bias',
+                                            initializer=self.bias_initializer,
+                                            regularizer=self.bias_regularizer,
+                                            constraint=self.bias_constraint)
         else:
             self.bias = None
         self.built = True
@@ -197,9 +221,12 @@ class DRNNCell(GRUCell):
         # print(h)
         # print(action)
         outputs = array_ops.concat([h, action],1)
-        outputs = Dense(self._transition_units)(outputs)
-        outputs = Dense(self._transition_units)(outputs)
-        outputs = Dense(self.state_size[-1])(outputs)
+        outputs = K.dot(outputs, self.dnn_kernel)
+        outputs = K.bias_add(outputs, self.dnn_bias)
+        activation = activations.get('sigmoid')
+        outputs = activation(outputs)
+        outputs = K.dot(outputs, self.output_kernel)
+        outputs = K.bias_add(outputs, self.output_bias)
         # h = tf.concat([h, outputs], 0)
         return outputs, [h, outputs]
         # _check_rnn_cell_input_dtypes([action,state])
