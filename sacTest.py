@@ -29,8 +29,10 @@ def main():
 
 
     # env = EnvRegistry("CartPole-v1",2,2)
-    env = PolicyTest("CartPole-v1")
+    env = PolicyTest("Hopper-v2")
 
+
+    print(dir(env.spec.observation_space), env.spec.action_space)
     pool = SimpleReplayBuffer(env_spec=env.spec, 
                               max_replay_buffer_size = 3000)
 

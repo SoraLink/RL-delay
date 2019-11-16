@@ -2,7 +2,7 @@ from Environment.registration import EnvRegistry
 import time
 
 def test():
-    env = EnvRegistry("CartPole-v1",2,2)
+    env = EnvRegistry("Hopper-v3",2,2)
     env.start()
     # print(type(env.env.spec))
     # while True:
