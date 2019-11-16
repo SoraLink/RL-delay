@@ -1,5 +1,5 @@
 import gym
-import time
+import pybullet_envs
 from Algorithm.Util.StateActionPair import StateActionPair
 import numpy as np
 
@@ -26,28 +26,25 @@ class EnvRegistry():
 
     def run(self):
         # print(len(self.action_and_state))
-        last_observation = None
-        while True:
-            self.env.render()
-            # self.observation, self.reward, self.done, self.info = self.env.step(self.action)
-            if len(self.action_queue) > self.transmit_delay:
-                raise Exception("length of action queue error")
-            elif len(self.action_queue) == self.transmit_delay:
-                observation, reward, done, info = self.env.step(self.action_queue[0].predicted_action)
-                self.action_queue[0].set_label(observation)
-                pair = StateActionPair(observation, get_list_actions(self.action_queue))
-                self.action_queue[0].set_info(reward, last_observation, done)
-                self.action_and_state.append(pair)
-                self.complete_data = self.action_queue.pop(0)
-                last_observation = observation
-            else:
-                observation, reward, done, info = self.env.step(self.zeor_action)
-                pair = StateActionPair(observation, get_list_actions(self.action_queue))
-                self.action_and_state.append(pair)
-                self.fill_zeors()
-                last_observation = observation
-            yield
-        # time.sleep(0.01)
+        self.env.render()
+        # self.observation, self.reward, self.done, self.info = self.env.step(self.action)
+        if len(self.action_queue) > self.transmit_delay+1:
+            raise Exception("length of action queue error")
+        elif len(self.action_queue) == self.transmit_delay+1:
+            observation, reward, done, info = self.env.step(self.action_queue[0].predicted_action)
+            # self.action_queue[0].set_label(self.last_observation)
+            pair = StateActionPair(observation, get_list_actions(self.action_queue[1:]))
+            self.action_queue[0].set_info(reward, self.last_observation, done)
+            self.action_and_state.append(pair)
+            self.complete_data = self.action_queue.pop(0)
+            self.last_observation = observation
+        else:
+            observation, reward, done, info = self.env.step(self.zero_action)
+            pair = StateActionPair(observation, get_list_actions(self.action_queue))
+            self.action_and_state.append(pair)
+            self.fill_zeors()
+            self.last_observation = observation
+    # time.sleep(0.01)
 
     def reset(self):
         self.env.reset()
@@ -68,7 +65,7 @@ class EnvRegistry():
                 self.action_and_state[-1].actions.insert(0, 0)
             else:
                 self.action_and_state[-1].actions.insert(0, np.zeros(self.env.action_space.shape))
-        assert(self.action_and_state[-1].actions==self.transmit_delay)
+        assert(len(self.action_and_state[-1].actions)==self.transmit_delay)
             # self.action_and_state[-1].actions.insert(0, np.zeros((self.env.action_space,)))
 
 

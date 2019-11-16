@@ -27,3 +27,14 @@ class StateActionPair:
         self.set_done(done)
         self.set_reward(reward)
         self.set_label(label)
+
+    def __str__(self):
+        string = "state: " + str(self.state) + "\n" +\
+        "actions: " + str(self.actions) + "\n" +\
+        "reward: " + str(self.reward) + "\n" +\
+        "done: " + str(self.done) + "\n" +\
+        "label: " + str(self.label) + "\n" +\
+        "predicted_action: " + str(self.predicted_action) + "\n" +\
+        "predicted_state: " + str(self.predicted_state) + "\n"
+
+        return string
