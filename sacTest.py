@@ -10,7 +10,7 @@ from sac.replay_buffers import SimpleReplayBuffer
 from sac.value_functions import NNQFunction, NNVFunction
 from sac.preprocessors import MLPPreprocessor
 # from variants import parse_domain_and_task, get_variants
-from Algorithm.Algo.policyTestAlgo import PolicyTest
+
 
 print('import finished')
 
@@ -29,7 +29,7 @@ def main():
 
 
     # env = EnvRegistry("CartPole-v1",2,2)
-    env = PolicyTest("Hopper-v2")
+    env = EnvRegistry("HopperBulletEnv-v0")
 
 
     print(dir(env.spec.observation_space), env.spec.action_space)

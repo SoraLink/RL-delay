@@ -30,7 +30,8 @@ class Model():
 
     def create_network(self):
         with tf.variable_scope(self.scope):
-            actions = tf.placeholder(tf.float32, [None, self.delay, self.action_space])
+            print("..................",self.action_space.shape)
+            actions = tf.placeholder(tf.float32, [None, self.delay, self.action_space.shape])
             init_observation = tf.placeholder(tf.float32, [None, self.observation_space])
             init_state = tf.zeros([None, self.rnn_unit])
             cell = DRNNCell(self.rnn_unit, self.nn_unit, self.observation_space)

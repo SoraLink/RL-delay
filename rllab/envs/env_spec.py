@@ -1,5 +1,6 @@
 from rllab.core.serializable import Serializable
-# from rllab.spaces.base import Space
+import numpy as np
+from rllab.spaces.base import Space
 
 
 class EnvSpec(Serializable):
@@ -15,6 +16,8 @@ class EnvSpec(Serializable):
         Serializable.quick_init(self, locals())
         self._observation_space = observation_space
         self._action_space = action_space
+        self._observation_space.flat_dim = np.prod(self._observation_space.low.shape)
+        self._action_space.flat_dim = np.prod(self._action_space.low.shape)
 
     @property
     def observation_space(self):

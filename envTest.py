@@ -4,7 +4,8 @@ import time
 import tensorflow as tf
 
 def test():
-    env = EnvRegistry("CartPoleBulletEnv-v1",2,2)
+    sess = tf.get_default_session
+    env = PredictedEnv("CartPoleBulletEnv-v1",2,2,sess)
     pair = env.reset()
     while True:
         action = env.action_space.sample()

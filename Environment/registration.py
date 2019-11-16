@@ -2,6 +2,8 @@ import gym
 import pybullet_envs
 from Algorithm.Util.StateActionPair import StateActionPair
 import numpy as np
+from rllab.envs.env_spec import EnvSpec
+
 
 class EnvRegistry():
 
@@ -44,6 +46,7 @@ class EnvRegistry():
             self.action_and_state.append(pair)
             self.last_observation = observation
     # time.sleep(0.01)
+
 
     def append_action(self, action):
         for pair in self.action_and_state:
