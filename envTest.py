@@ -1,5 +1,7 @@
+from Environment.predictedEnv import PredictedEnv
 from Environment.registration import EnvRegistry
 import time
+import tensorflow as tf
 
 def test():
     env = EnvRegistry("CartPoleBulletEnv-v1",2,2)

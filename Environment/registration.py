@@ -42,31 +42,48 @@ class EnvRegistry():
             observation, reward, done, info = self.env.step(self.zero_action)
             pair = StateActionPair(observation, get_list_actions(self.action_queue))
             self.action_and_state.append(pair)
-            self.fill_zeors()
             self.last_observation = observation
     # time.sleep(0.01)
+
+    def append_action(self, action):
+        for pair in self.action_and_state:
+            pair.actions.append(action)
 
     def reset(self):
         self.env.reset()
         self.action_queue = []
         self.action_and_state = []
-        while len(self.action_and_state) < self.receive_delay:
+        while len(self.action_and_state) <= self.receive_delay:
             self.run()
+        self.fill_zeors()
+        self.assert_test()
         return self.action_and_state.pop(0)
 
     def step(self, pair):
         self.action_queue.append(pair)
+        self.append_action(pair.predicted_action)
         self.run()
+        self.fill_zeors()
+        self.assert_test()
         return self.action_and_state.pop(0)
 
     def fill_zeors(self):
-        while len(self.action_and_state[-1].actions) < self.transmit_delay:
+        while len(self.action_and_state[0].actions) < self.transmit_delay+self.receive_delay:
             if isinstance(self.action_space, gym.spaces.discrete.Discrete):
-                self.action_and_state[-1].actions.insert(0, 0)
+                self.action_and_state[0].actions.insert(0, 0)
             else:
-                self.action_and_state[-1].actions.insert(0, np.zeros(self.env.action_space.shape))
-        assert(len(self.action_and_state[-1].actions)==self.transmit_delay)
+                self.action_and_state[0].actions.insert(0, np.zeros(self.env.action_space.shape))
             # self.action_and_state[-1].actions.insert(0, np.zeros((self.env.action_space,)))
+
+    def assert_test(self):
+        assert (len(self.action_and_state[0].actions) == self.transmit_delay + self.receive_delay)
+
+    @property
+    def spec(self):
+        return EnvSpec(
+            observation_space=self.env.observation_space,
+            action_space=self.env.action_space,
+        )
 
 
 def get_list_actions(pairs):

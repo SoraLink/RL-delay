@@ -6,7 +6,7 @@ from Algorithm.Util.Dataset import Dataset
 class PredictedEnv:
     def __init__(self, task, t_delay, r_delay, sess):
         self.env = EnvRegistry(task, transmit_delay=t_delay, receive_delay=r_delay)
-        self.predict_model = Model(sess= sess,rnn_unit=32,nn_unit=32, delay=t_delay,
+        self.predict_model = Model(sess= sess,rnn_unit=32,nn_unit=32, delay=t_delay+r_delay,
                                    observation_space=self.env.observation_space.shape,
                                    action_space=self.env.action_space.shape, scope="model",
                                    mask_value=0.00001)
@@ -15,8 +15,8 @@ class PredictedEnv:
     def step(self, pair):
         pair = self.env.step(pair)
         pair = self.predict_model.run(pair)
-        assert self.env.complete_data is not None
-        self.data_set.add_instance(self.env.complete_data)
+        if self.env.complete_data is not None:
+            self.data_set.add_instance(self.env.complete_data)
         return pair
 
     def reset(self):
