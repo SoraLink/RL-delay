@@ -21,7 +21,7 @@ class EnvRegistry():
         if isinstance(self.action_space, gym.spaces.discrete.Discrete):
             self.zero_action = 0
         else:
-            self.zeor_action = np.zeros(self.env.action_space.shape)
+            self.zero_action = np.zeros(self.env.action_space.shape)
         self.complete_data = None
         # self.spec.action_space = self.env.action_space
         # self.spec.observation_space = self.env.observation_space

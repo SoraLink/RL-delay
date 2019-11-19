@@ -46,7 +46,7 @@ def main():
                        n_train_repeat=1,
                        n_initial_exploration_steps=10000,
                        epoch_length=1000,
-                       eval_n_episodes=10,
+                       eval_n_episodes=0,
                        eval_deterministic=True,
                        eval_render=False,
                        control_interval=1, 
@@ -56,7 +56,7 @@ def main():
     policy = GaussianPolicy(
         env_spec=env.spec,
         hidden_layer_sizes=[M, M],
-        reparameterize=True, # Hyper-param
+        reparameterize=False, # Hyper-param
         reg=1e-3,
     )
     initial_exploration_policy = UniformPolicy(env_spec=env.spec)

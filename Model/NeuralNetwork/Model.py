@@ -2,6 +2,7 @@ import tensorflow as tf
 from Model.NeuralNetwork.RNNCell.DRNNCell import DRNNCell
 from tensorflow.python.keras.layers import RNN
 from Algorithm.Util.StateActionPair import StateActionPair
+import numpy as np
 
 class Model():
     def __init__(self,
@@ -22,7 +23,7 @@ class Model():
         self.mask_value = mask_value
         self.observation_space = observation_space
         self.action_space = action_space
-        self.output, self.actions, self.init_observation = self.create_network()
+        self.output, self.actions, self.init_observation, self.init_state = self.create_network()
         self.target_output = tf.placeholder(tf.float32, [None, self.observation_space])
         self.loss = tf.reduce_mean(tf.square(self.output-self.target_output))
         self.update_method = tf.train.AdamOptimizer(1e-3)
@@ -30,15 +31,17 @@ class Model():
 
     def create_network(self):
         with tf.variable_scope(self.scope):
-            print("..................",self.action_space.shape)
-            actions = tf.placeholder(tf.float32, [None, self.delay, self.action_space.shape])
+            if self.action_space == 1:
+                actions = tf.placeholder(tf.float32, [None, self.delay])
+            else:
+                actions = tf.placeholder(tf.float32, [None, self.delay, self.action_space])
             init_observation = tf.placeholder(tf.float32, [None, self.observation_space])
-            init_state = tf.zeros([None, self.rnn_unit])
+            init_state = tf.placeholder(tf.float32, [None, self.rnn_unit])
             cell = DRNNCell(self.rnn_unit, self.nn_unit, self.observation_space)
             rnn = RNN(cell)
             output = tf.keras.layers.Masking(mask_value=self.mask_value)(actions)
-            output = rnn(inputs=output, initial_state=[init_state, init_observation])
-            return output, actions, init_observation
+            output = rnn(inputs=actions, initial_state=[init_state, init_observation])
+            return output, actions, init_observation, init_state
 
     def get_param(self):
         return tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=self.scope)
@@ -51,7 +54,9 @@ class Model():
         return data
 
     def run(self, pair):
+        print(pair.state)
         predicted_state = self.sess.run(self.output,feed_dict={
+            self.init_state : [np.zeros(self.rnn_unit)],
             self.actions : [pair.actions],
             self.init_observation : [pair.state]
         })

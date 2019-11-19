@@ -1,14 +1,15 @@
 from Environment.registration import EnvRegistry
-from Algorithm.Model.Model import Model
+from Model.NeuralNetwork.Model import Model
 from rllab.envs.env_spec import EnvSpec
 from Algorithm.Util.Dataset import Dataset
 
 class PredictedEnv:
     def __init__(self, task, t_delay, r_delay, sess):
         self.env = EnvRegistry(task, transmit_delay=t_delay, receive_delay=r_delay)
+        # print("..................",self.env.observation_space.shape)
         self.predict_model = Model(sess= sess,rnn_unit=32,nn_unit=32, delay=t_delay+r_delay,
-                                   observation_space=self.env.observation_space.shape,
-                                   action_space=self.env.action_space.shape, scope="model",
+                                   observation_space=self.env.observation_space.shape[0],
+                                   action_space=1, scope="model",
                                    mask_value=0.00001)
         self.data_set = Dataset(3000)
 

@@ -2,9 +2,10 @@ from Environment.predictedEnv import PredictedEnv
 from Environment.registration import EnvRegistry
 import time
 import tensorflow as tf
+from sac.misc.tf_utils import get_default_session
 
 def test():
-    sess = tf.get_default_session
+    sess = get_default_session()
     env = PredictedEnv("CartPoleBulletEnv-v1",2,2,sess)
     pair = env.reset()
     while True:
