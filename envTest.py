@@ -3,16 +3,19 @@ from Environment.registration import EnvRegistry
 import time
 import tensorflow as tf
 from sac.misc.tf_utils import get_default_session
+# from tensorflow.python.keras.layers.recurrent import GRUCell
 
 def test():
     sess = get_default_session()
     env = PredictedEnv("CartPoleBulletEnv-v1",2,2,sess)
+    init = tf.global_variables_initializer()
+    sess.run(init)
     pair = env.reset()
     while True:
-        action = env.action_space.sample()
-        pair.set_predicted_action(action)
+        action = env.env.action_space.sample()
+        pair.set_predicted_action([action])
         pair = env.step(pair)
-        print(env.complete_data)
+        print(len(env.data_set.pairs))
     # print(type(env.env.spec))
     # while True:
     #     action = env.action_space.sample()

@@ -73,7 +73,7 @@ class EnvRegistry():
     def fill_zeors(self):
         while len(self.action_and_state[0].actions) < self.transmit_delay+self.receive_delay:
             if isinstance(self.action_space, gym.spaces.discrete.Discrete):
-                self.action_and_state[0].actions.insert(0, 0)
+                self.action_and_state[0].actions.insert(0,  np.zeros(1))
             else:
                 self.action_and_state[0].actions.insert(0, np.zeros(self.env.action_space.shape))
             # self.action_and_state[-1].actions.insert(0, np.zeros((self.env.action_space,)))

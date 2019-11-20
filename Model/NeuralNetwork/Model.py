@@ -31,10 +31,7 @@ class Model():
 
     def create_network(self):
         with tf.variable_scope(self.scope):
-            if self.action_space == 1:
-                actions = tf.placeholder(tf.float32, [None, self.delay])
-            else:
-                actions = tf.placeholder(tf.float32, [None, self.delay, self.action_space])
+            actions = tf.placeholder(tf.float32, [None, self.delay, self.action_space])
             init_observation = tf.placeholder(tf.float32, [None, self.observation_space])
             init_state = tf.placeholder(tf.float32, [None, self.rnn_unit])
             cell = DRNNCell(self.rnn_unit, self.nn_unit, self.observation_space)
@@ -54,7 +51,7 @@ class Model():
         return data
 
     def run(self, pair):
-        print(pair.state)
+        # print(pair.actions)
         predicted_state = self.sess.run(self.output,feed_dict={
             self.init_state : [np.zeros(self.rnn_unit)],
             self.actions : [pair.actions],

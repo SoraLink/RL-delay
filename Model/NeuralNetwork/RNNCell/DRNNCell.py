@@ -73,7 +73,6 @@ class DRNNCell(GRUCell):
             initializer=self.recurrent_initializer,
             regularizer=self.recurrent_regularizer,
             constraint=self.recurrent_constraint)
-
         self.dnn_kernel = self.add_weight(
             shape=(self.units+input_shape[-1], self._transition_units),
             name='dnn_kernel',
@@ -81,10 +80,19 @@ class DRNNCell(GRUCell):
         )
         self.output_kernel = self.add_weight(
             shape=(self._transition_units, self.state_size[-1]),
-            name='dnn_kernel',
+            name='output_kernel',
             initializer=self.dnn_initializer
         )
-
+        self.dnn_bias = self.add_weight(shape=self._transition_units,
+                                    name='dnn_bias',
+                                    initializer=self.bias_initializer,
+                                    regularizer=self.bias_regularizer,
+                                    constraint=self.bias_constraint)
+        self.output_bias = self.add_weight(shape=self.state_size[-1],
+                                        name='output_bias',
+                                        initializer=self.bias_initializer,
+                                        regularizer=self.bias_regularizer,
+                                        constraint=self.bias_constraint)
         if self.use_bias:
             if not self.reset_after:
                 bias_shape = (3 * self.units,)
@@ -99,16 +107,6 @@ class DRNNCell(GRUCell):
                                         initializer=self.bias_initializer,
                                         regularizer=self.bias_regularizer,
                                         constraint=self.bias_constraint)
-            self.dnn_bias = self.add_weight(shape=self._transition_units,
-                                        name='dnn_bias',
-                                        initializer=self.bias_initializer,
-                                        regularizer=self.bias_regularizer,
-                                        constraint=self.bias_constraint)
-            self.output_bias = self.add_weight(shape=self.state_size[-1],
-                                            name='output_bias',
-                                            initializer=self.bias_initializer,
-                                            regularizer=self.bias_regularizer,
-                                            constraint=self.bias_constraint)
         else:
             self.bias = None
         self.built = True

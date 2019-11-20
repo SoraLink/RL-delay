@@ -3,6 +3,7 @@ class Dataset():
     def __init__(self, max_size, ):
         self.max_size = max_size
         self.pairs = []
+        self.index = 0
 
     def add_instance(self, pair):
         if len(self.pairs) >= self.max_size:
@@ -19,7 +20,7 @@ class Dataset():
         for i in range(0, num):
             indexes.append(Random.randint(0, len(self.pairs)))
         results = list()
-        results.append(self.pairs[index] for index in indexes)
+        results.append(self.pairs[i] for i in indexes)
         return results
 
 
