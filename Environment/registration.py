@@ -1,5 +1,5 @@
-import gym
-import pybullet_envs
+import gym  # open ai gym
+import pybulletgym  # register PyBullet enviroments with open ai gym
 from Algorithm.Util.StateActionPair import StateActionPair
 import numpy as np
 from rllab.envs.env_spec import EnvSpec
@@ -9,6 +9,7 @@ class EnvRegistry():
 
     def __init__(self, task, transmit_delay=1, receive_delay=1, num_of_episode=100):
         self.env = gym.make(task)
+        self.env.render("human")
         self.action_space = self.env.action_space
         self.observation_space = self.env.observation_space
         self.reward_range = self.env.reward_range
@@ -28,7 +29,7 @@ class EnvRegistry():
 
     def run(self):
         # print(len(self.action_and_state))
-        self.env.render()
+        self.env.render("human")
         # self.observation, self.reward, self.done, self.info = self.env.step(self.action)
         if len(self.action_queue) > self.transmit_delay+1:
             raise Exception("length of action queue error")

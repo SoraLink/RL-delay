@@ -7,7 +7,7 @@ from sac.misc.tf_utils import get_default_session
 
 def test():
     sess = get_default_session()
-    env = PredictedEnv("CartPoleBulletEnv-v1",2,2,sess)
+    env = PredictedEnv("HopperPyBulletEnv-v0",2,2,sess)
     init = tf.global_variables_initializer()
     sess.run(init)
     observation = env.reset()
