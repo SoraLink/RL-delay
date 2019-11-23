@@ -13,7 +13,7 @@ def test():
     observation = env.reset()
     while True:
         action = env.env.action_space.sample()
-        pair = env.step([action])
+        pair = env.step(action)
         print(len(env.data_set.pairs))
     # print(type(env.env.spec))
     # while True:

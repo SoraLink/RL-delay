@@ -14,7 +14,7 @@ class PredictedEnv:
                                    action_space=self.env.action_space.shape[0], scope="model",
                                    mask_value=0.00001)
         self.data_set = Dataset(3000)
-        adapted_methods = ['observation_space', 'action_space', 'render']
+        adapted_methods = ['observation_space', 'action_space']
         for value in adapted_methods:
             func = getattr(self.env, value)
             self.__setattr__(value, func)
