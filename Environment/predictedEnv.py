@@ -14,7 +14,7 @@ class PredictedEnv:
                                    action_space=1, scope="model",
                                    mask_value=0.00001)
         self.data_set = Dataset(3000)
-        adapted_methods = ['observation_space', 'action_space']
+        adapted_methods = ['observation_space', 'action_space', 'render']
         for value in adapted_methods:
             func = getattr(self.minion, value)
             self.__setattr__(value, func)
