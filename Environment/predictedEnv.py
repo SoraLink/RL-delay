@@ -13,17 +13,18 @@ class PredictedEnv:
                                    mask_value=0.00001)
         self.data_set = Dataset(3000)
 
-    def step(self, pair):
-        pair = self.env.step(pair)
-        pair = self.predict_model.run(pair)
+    def step(self, action):
+        self.pair.set_predicted_action(action)
+        self.pair = self.env.step(self.pair)
+        self.pair = self.predict_model.run(self.pair)
         if self.env.complete_data is not None:
             self.data_set.add_instance(self.env.complete_data)
-        return pair
+        return pair.state
 
     def reset(self):
         pair = self.env.reset()
-        pair = self.predict_model.run(pair)
-        return pair
+        self.pair = self.predict_model.run(pair)
+        return self.pair.state
 
     @property
     def spec(self):
