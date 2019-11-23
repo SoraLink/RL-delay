@@ -37,7 +37,7 @@ def main():
     env = PredictedEnv("HopperBulletEnv-v0", 1, 1, sess)
 
 
-    print(dir(env.spec.observation_space), env.spec.action_space)
+    print('-=---------------------------',dir(env.spec.observation_space), env.spec.action_space)
     pool = SimpleReplayBuffer(env_spec=env.spec, 
                               max_replay_buffer_size = 3000)
 
