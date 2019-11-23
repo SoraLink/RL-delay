@@ -1,4 +1,5 @@
 from Environment.registration import EnvRegistry
+from Environment.predictedEnv import PredictedEnv
 import time
 from sac.algos.sac import SAC
 # from rllab.envs.normalized_env import normalize
@@ -9,6 +10,8 @@ from sac.misc.sampler import SimpleSampler
 from sac.replay_buffers import SimpleReplayBuffer
 from sac.value_functions import NNQFunction, NNVFunction
 from sac.preprocessors import MLPPreprocessor
+import tensorflow as tf
+
 # from variants import parse_domain_and_task, get_variants
 
 
@@ -29,7 +32,9 @@ def main():
 
 
     # env = EnvRegistry("CartPole-v1",2,2)
-    env = EnvRegistry("HopperBulletEnv-v0")
+
+    sess = tf.Session()
+    env = PredictedEnv("HopperBulletEnv-v0", 1, 1, sess)
 
 
     print(dir(env.spec.observation_space), env.spec.action_space)
