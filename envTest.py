@@ -10,11 +10,10 @@ def test():
     env = PredictedEnv("CartPoleBulletEnv-v1",2,2,sess)
     init = tf.global_variables_initializer()
     sess.run(init)
-    pair = env.reset()
+    observation = env.reset()
     while True:
         action = env.env.action_space.sample()
-        pair.set_predicted_action([action])
-        pair = env.step(pair)
+        pair = env.step([action])
         print(len(env.data_set.pairs))
     # print(type(env.env.spec))
     # while True:

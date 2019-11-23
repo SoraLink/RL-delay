@@ -19,7 +19,7 @@ class EnvRegistry():
         self.action_queue = []
         self.action_and_state = []
         if isinstance(self.action_space, gym.spaces.discrete.Discrete):
-            self.zero_action = 0
+            self.zero_action = np.zeros(1)
         else:
             self.zero_action = np.zeros(self.env.action_space.shape)
         self.complete_data = None
