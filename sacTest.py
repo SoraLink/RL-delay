@@ -11,7 +11,7 @@ from sac.replay_buffers import SimpleReplayBuffer
 from sac.value_functions import NNQFunction, NNVFunction
 from sac.preprocessors import MLPPreprocessor
 import tensorflow as tf
-
+from sac.misc.tf_utils import get_default_session
 # from variants import parse_domain_and_task, get_variants
 
 
@@ -34,7 +34,7 @@ def main():
     # env = EnvRegistry("CartPole-v1",2,2)
 
     sess = tf.Session()
-    env = PredictedEnv("HopperBulletEnv-v0", 1, 1, sess)
+    env = PredictedEnv("CartPolePyBulletEnv-v1", 1, 1, sess)
 
 
     print('-=---------------------------',dir(env.spec.observation_space), env.spec.action_space)
