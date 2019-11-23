@@ -51,7 +51,7 @@ class Model():
         return data
 
     def run(self, pair):
-        # print(pair.actions)
+        print(pair.actions)
         predicted_state = self.sess.run(self.output,feed_dict={
             self.init_state : [np.zeros(self.rnn_unit)],
             self.actions : [pair.actions],
