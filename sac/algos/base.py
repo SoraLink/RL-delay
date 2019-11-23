@@ -81,6 +81,8 @@ class RLAlgorithm(Algorithm):
             self.sampler.initialize(env, initial_exploration_policy, pool)
             initial_exploration_done = False 
 
+
+        
         with self._sess.as_default():
             gt.rename_root('RLAlgorithm')
             gt.reset()
@@ -194,6 +196,8 @@ class RLAlgorithm(Algorithm):
                 self._eval_env = deep_clone(env)
         self._policy = policy
         self._pool = pool
+        init = tf.global_variables_initializer()
+        self._sess.run(init)
 
     @property
     def policy(self):
