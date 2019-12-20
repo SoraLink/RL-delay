@@ -196,8 +196,6 @@ class RLAlgorithm(Algorithm):
                 self._eval_env = deep_clone(env)
         self._policy = policy
         self._pool = pool
-        init = tf.global_variables_initializer()
-        self._sess.run(init)
 
     @property
     def policy(self):

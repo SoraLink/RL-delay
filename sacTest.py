@@ -34,9 +34,10 @@ def main():
     # env = EnvRegistry("CartPole-v1",2,2)
 
     sess = tf.Session()
-    env = PredictedEnv("CartPolePyBulletEnv-v1", 1, 1, sess)
+    env = PredictedEnv("HopperPyBulletEnv-v0", 2, 2, sess)
 
-
+    init = tf.global_variables_initializer()
+    sess.run(init)
     print('-=---------------------------',dir(env.spec.observation_space), env.spec.action_space)
     pool = SimpleReplayBuffer(env_spec=env.spec, 
                               max_replay_buffer_size = 3000)

@@ -28,7 +28,7 @@ class PredictedEnv:
         self.pair = self.predict_model.run(self.pair)
         if self.env.complete_data is not None:
             self.data_set.add_instance(self.env.complete_data)
-        return self.pair.state
+        return self.pair.state, self.pair.reward, self.pair.done, {}
 
     def reset(self):
         pair = self.env.reset()
