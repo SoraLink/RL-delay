@@ -112,12 +112,7 @@ class PPO:
 
     def train(self, itr = None):
 
-        pool = SimpleReplayPool(
-            observation_dim=self.policy.state_dim,
-            action_dim=self.policy.action_dim,
-            lam=self.lam,
-            gamma=self.gamma
-        )
+        assert self.env.pool_isInit
 
         self.init_opt()
         epoch = 0
@@ -138,19 +133,9 @@ class PPO:
             path_return = []
             path_value = []
             for i in range(self.max_local_step):
-                # self.env.render()
-                # print('len',len(observation))
-                # observation = observation[:12] + observation[13:]
-                # indices = 6, 7, 9, 11, 13, 15, 17
-                # observation = [i for j, i in enumerate(observation) if j not in indices]
                 action, value = self.policy.get_a_v(observation)
-                # action = np.array([0,0,-10])
-                next_ob, reward, next_terminal, _ = self.env.step(action)
+                next_ob, _, next_terminal, _ = self.env.step(action, value)
                 step += 1
-                print(f'reward: {reward}')
-                path_return.append(reward)
-                path_value.append(value)
-                pool.add_sample(value, terminal, observation, action, reward)
                 observation = next_ob
                 terminal = next_terminal
                 # print(terminal)
@@ -163,17 +148,19 @@ class PPO:
             path_return = np.array(path_return)
             path_value = np.array(path_value)
             logger.record_tabular('epoch', epoch)
-            logger.record_tabular('path reward', path_return.sum())
-            logger.record_tabular('path reward (mean)', path_return.mean())
-            logger.record_tabular('path reward (var)', path_return.var())
-            logger.record_tabular('path value (sum)', path_value.sum())
-            logger.record_tabular('path value (max)', path_value.max())
-            logger.record_tabular('path value (min)', path_value.min())
-            logger.record_tabular('path value (mean)', path_value.mean())
-            logger.record_tabular('path value (var)', path_value.var())
+            # logger.record_tabular('path reward', path_return.sum())
+            # logger.record_tabular('path reward (mean)', path_return.mean())
+            # logger.record_tabular('path reward (var)', path_return.var())
+            # logger.record_tabular('path value (sum)', path_value.sum())
+            # logger.record_tabular('path value (max)', path_value.max())
+            # logger.record_tabular('path value (min)', path_value.min())
+            # logger.record_tabular('path value (mean)', path_value.mean())
+            # logger.record_tabular('path value (var)', path_value.var())
             joblib.dump(steps, './steps.pkl', compress=3)
 
+            pool = self.env.pool
             pool._compute_A(value)
+            
             logger.log('computing!!')
             ob, ac, atarg, tdlamret = pool._observations, pool._actions, pool._advantage, pool._target_values
             logger.log('Obs shape: {0}, Action shape: {1}, Advantage shape: {2}, Tgt_value shape: {3}'.format(
@@ -192,7 +179,7 @@ class PPO:
                     acc.append(self.do_training(batch, 0))
 
             self.opt_info['update_old_policy']()
-            pool.reset()
+            self.env.pool.reset()
             total_loss = np.array(list(zip(*acc))[0])
             surrogate = np.array(list(zip(*acc))[1])
             value_loss = np.array(list(zip(*acc))[2])

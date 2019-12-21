@@ -23,14 +23,23 @@ class PredictedEnv:
         self._initialised = True
         self.name = task
 
+    def load_pool(self, algo):
+        self.pool_isInit = True
+        self.pool = SimpleReplayPool(
+            observation_dim=algo.policy.state_dim,
+            action_dim=algo.policy.action_dim,
+            lam=algo.lam,
+            gamma=algo.gamma
+        )
 
-    def step(self, action):
+
+    def step(self, action, value):
+        #TODO use self.pool.add_sample(value, terminal, observation, action, reward)
         self.pair.set_predicted_action(action)
         self.pair = self.env.step(self.pair)
         self.pair = self.predict_model.run(self.pair)
         if self.env.complete_data is not None:
             self.data_set.add_instance(self.env.complete_data)
-        print(self.pair.state, self.pair.reward, self.pair.done)
         return self.pair.state, self.pair.reward, self.pair.done, {}
 
     def reset(self):
@@ -63,27 +72,49 @@ class PredictedEnv:
     #     super().__setattr__(key, value)
 
 
+class SimpleReplayPool():
+    def __init__(
+            self, observation_dim, action_dim, lam, gamma):
+        self._observation_dim = observation_dim
+        self._action_dim = action_dim
+        self._A = []
+        self._observations = []
+        self._actions = []
+        self._target_values = []
+        self.lam = lam
+        self.gama = gamma
+        self._terminal = []
+        self._rewards = []
 
-class MinionAdapter:
-    _initialised = False
+    def reset(self):
+        self._observations = []
+        self._actions = []
+        self._A = []
+        self._target_values = []
+        self._terminal = []
+        self._rewards = []
 
-    def __init__(self, minion, **adapted_methods):
-        self.minion = minion
-#         print(self._initialised)
-        for key, value in adapted_methods.items():
-            func = getattr(self.minion, value)
-            self.__setattr__(key, func)
+    def add_sample(self, value, terminal, observation=None, action=None, reward=None, ):
+        self._observations.append(observation)
+        self._target_values.append(value)
+        self._terminal.append(terminal)
+        self._actions.append(action)
+        self._rewards.append(reward)
 
-        self._initialised = True
+    def _compute_A(self, nextvpred):
+        self._observations = np.array(self._observations, dtype=np.float32)
+        self._actions = np.array(self._actions, dtype=np.float32)
+        self._target_values = np.array(self._target_values, dtype=np.float32)
+        new = np.append(self._terminal, 0)
+        vpred = np.append(self._target_values, nextvpred)
+        print(vpred.shape)
+        T = len(self._rewards)
 
-    def __getattr__(self, attr):
-        """Attributes not in Adapter are delegated to the minion"""
-        return getattr(self.minion, attr)
-
-    def __setattr__(self, key, value):
-        """Set attributes normally during initialisation"""
-        if not self._initialised:
-            super().__setattr__(key, value)
-        else:
-            """Set attributes on minion after initialisation"""
-            setattr(self.minion, key, value)
+        self._advantage = gaelam = np.empty(T, 'float32')
+        rew = self._rewards
+        lastgaelam = 0
+        for t in reversed(range(T)):
+            nonterminal = 1 - new[t + 1]
+            delta = rew[t] + self.gama * vpred[t + 1] * nonterminal - vpred[t]
+            gaelam[t] = lastgaelam = delta + self.gama * self.lam * nonterminal * lastgaelam
+        self._target_values = self._advantage + self._target_values

@@ -42,6 +42,8 @@ def main():
             gamma = 0.99,
             max_local_step = 50,
                 )
+
+    env.load_pool(dspg)
     dspg.train()
 
 
