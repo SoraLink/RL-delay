@@ -61,10 +61,11 @@ class Model():
         return pair
 
     def train(self, pairs):
-        actions, states = extract(pairs)
+        actions, states, target_states = extract(pairs)
         self.sess.run(self.update, feed_dict={
             self.actions: actions,
-            self.init_observation: states
+            self.output: states,
+            self.target_output: target_states 
         })
 
 def extract(pairs):
@@ -72,4 +73,6 @@ def extract(pairs):
     actions.append(pair.actions for pair in pairs)
     states = list()
     states.append(pair.state for pair in pairs)
-    return [actions, states]
+    target_states = list()
+    target_states.append(pair.label for pair in pairs)
+    return [actions, states, target_states]
