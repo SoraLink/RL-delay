@@ -158,7 +158,7 @@ class PPO:
             # logger.record_tabular('path value (var)', path_value.var())
             joblib.dump(steps, './steps.pkl', compress=3)
 
-            pool = self.env.pool
+            pool = self.env.get_pool()
             pool._compute_A(value)
             
             logger.log('computing!!')
