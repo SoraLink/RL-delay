@@ -20,6 +20,7 @@ class PredictedEnv:
             self.__setattr__(value, func)
 
         self._initialised = True
+        self.name = task
 
 
     def step(self, action):
