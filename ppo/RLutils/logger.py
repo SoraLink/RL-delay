@@ -55,7 +55,7 @@ def init(restore = False, dir_name = None, session = None, itr = 'latest'):
     try:
         os.chdir(data_dir)
     except:
-        raise OSError(f'change {data_dir} path failed, log path error, current work dictionary is %s'%os.getcwd())
+        raise OSError(f'change {data_dir} path failed, log path error, current work dictionary is {os.getcwd()}')
     try:
         os.mkdir(task_name_scope)
     except FileExistsError:

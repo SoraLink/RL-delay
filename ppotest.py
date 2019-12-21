@@ -20,9 +20,10 @@ def main():
 
     init = tf.global_variables_initializer()
     sess.run(init)
-
-    act_dim = env.action_space.shape
-    obs_dim = env.observation.shape
+    act_dim = env.action_space.shape[0]
+    obs_dim = env.observation_space.shape[0]
+    print("act_dim: ", act_dim)
+    print("obs_dim: ", obs_dim)
     # tf.set_random_seed(seed)
     policy = Policy(sess, obs_dim, act_dim, 'ppo', hidden_units=(64, 64))
 

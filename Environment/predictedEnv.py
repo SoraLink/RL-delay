@@ -17,7 +17,7 @@ class PredictedEnv:
         self.data_set = Dataset(3000)
         adapted_methods = ['observation_space', 'action_space']
         for value in adapted_methods:
-            func = getattr(self.env, value)
+            func = getattr(self.env.env, value)
             self.__setattr__(value, func)
 
         self._initialised = True
@@ -30,6 +30,7 @@ class PredictedEnv:
         self.pair = self.predict_model.run(self.pair)
         if self.env.complete_data is not None:
             self.data_set.add_instance(self.env.complete_data)
+        print(self.pair.state, self.pair.reward, self.pair.done)
         return self.pair.state, self.pair.reward, self.pair.done, {}
 
     def reset(self):
@@ -48,18 +49,18 @@ class PredictedEnv:
         pairs = self.data_set.get_instance_randomly(64)
         self.predict_model.train(pairs)
 
-    def __getattr__(self, attr):
-        """Attributes not in Adapter are delegated to the minion"""
-        return getattr(self.minion, attr)
+    # def __getattr__(self, attr):
+    #     """Attributes not in Adapter are delegated to the minion"""
+    #     return getattr(self.minion, attr)
 
-    def __setattr__(self, key, value):
-        """Set attributes normally during initialisation"""
-        # if not self._initialised:
-        #     super().__setattr__(key, value)
-        # else:
-        #     """Set attributes on minion after initialisation"""
-        #     setattr(self.minion, key, value)
-        super().__setattr__(key, value)
+    # def __setattr__(self, key, value):
+    #     """Set attributes normally during initialisation"""
+    #     # if not self._initialised:
+    #     #     super().__setattr__(key, value)
+    #     # else:
+    #     #     """Set attributes on minion after initialisation"""
+    #     #     setattr(self.minion, key, value)
+    #     super().__setattr__(key, value)
 
 
 
