@@ -1,8 +1,8 @@
 from enum import Enum
 
-from RLutils.tabulate import tabulate
-from RLutils.console import mkdir_p, colorize
-from RLutils.autoargs import get_all_parameters
+from .tabulate import tabulate
+from .console import mkdir_p, colorize
+from .autoargs import get_all_parameters
 from contextlib import contextmanager
 import numpy as np
 import os

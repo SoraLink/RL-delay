@@ -7,6 +7,7 @@ class PredictedEnv:
     _initialised = False
 
     def __init__(self, task, t_delay, r_delay, sess):
+        self.a = 1
         self.env = EnvRegistry(task, transmit_delay=t_delay, receive_delay=r_delay)
         # print("..................",self.env.observation_space.shape)
         self.predict_model = Model(sess= sess,rnn_unit=32,nn_unit=32, delay=t_delay+r_delay,

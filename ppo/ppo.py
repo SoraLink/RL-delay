@@ -1,12 +1,12 @@
 import os, sys
 
-lib_path = os.path.abspath(os.path.join('..'))
+lib_path = os.path.abspath(os.path.join('.'))
 sys.path.append(lib_path)
 
 import numpy as np
 import tensorflow as tf
 from .RLutils.dataset import Dataset
-import .RLutils.logger as logger
+from .RLutils import logger 
 import joblib
 
 

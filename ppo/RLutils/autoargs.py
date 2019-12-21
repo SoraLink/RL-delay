@@ -1,4 +1,4 @@
-from RLutils.console import colorize
+from .console import colorize
 import inspect
 
 

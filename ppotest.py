@@ -9,12 +9,13 @@ from ppo.ppo import PPO
 from ppo.mlp_stoch_policy import Policy
 import tensorflow as tf
 from Environment.predictedEnv import PredictedEnv
+from sac.misc.tf_utils import get_default_session
 
 import numpy as np
 import tensorflow as tf
 
 def main():
-    sess = tf.Session()
+    sess = get_default_session()
     env = PredictedEnv("HopperPyBulletEnv-v0", 2, 2, sess)
 
     init = tf.global_variables_initializer()
@@ -22,7 +23,6 @@ def main():
 
     act_dim = env.action_space.shape
     obs_dim = env.observation.shape
-    sess = tf.Session()
     # tf.set_random_seed(seed)
     policy = Policy(sess, obs_dim, act_dim, 'ppo', hidden_units=(64, 64))
 
