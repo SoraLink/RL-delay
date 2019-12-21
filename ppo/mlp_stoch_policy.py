@@ -16,21 +16,10 @@ class Policy():
         self.state,self.mu, self.logstd, self.value = self.create_network()
         self.sigma = tf.exp(self.logstd)
         self.shape = tf.placeholder(shape=(2),dtype=tf.int32)
-        self.x = self.mu + self.sigma * tf.random_normal(tf.shape(self.mu))
+        self.action = self.mu + self.sigma * tf.random_normal(tf.shape(self.mu))
         self.action = self._produce_action(self.x)
-        # self.mu = 0.1 * (tf.nn.tanh(self.mu)*0.5+0.5)+0.01 # shift the output to [0, 0.1]+0.01
-        # self.sigma = 0.005 * self.sigma
-        # x = self.mu + self.sigma * tf.random_normal(tf.shape(self.mu))
-        # self.action = tf.clip_by_value(x, 0.01, 1)
 
         self.recurrent = False
-
-    def _inverse_action(self, x):
-        tmp = (x - 0.01)/0.1
-        return tf.math.log(tmp/(1-tmp))
-
-    def _produce_action(self, x):
-        return  0.1*tf.nn.sigmoid(x)+0.01
 
     def create_network(self):
         with tf.variable_scope(self.scope):

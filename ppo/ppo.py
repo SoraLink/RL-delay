@@ -120,7 +120,6 @@ class PPO:
         )
 
         self.init_opt()
-        sign = 1
         epoch = 0
         if self.restore_fd:
             info = logger.init(restore=True, dir_name=self.restore_fd, session=self.sess, itr=itr)
@@ -128,8 +127,6 @@ class PPO:
         else:
             logger.init()
 
-        obj_share = -6
-        self.env.set_objective(share= obj_share, remained_time= 5)
         observation = self.env.reset()
         terminal = True
         steps = []
@@ -161,17 +158,8 @@ class PPO:
                     print(i)
                     steps.append(step)
                     step = 0
-                    sign *= -1
-                    if obj_share < 0:
-                        pass
-                    else:
-                        obj_share = (obj_share % 6)+1
-                    obj_share *= -1
-                    self.env.set_objective(share=obj_share, remained_time=5)
-
                     observation = self.env.reset()
                     # print(ob)
-            self.env.save_to_csv(epoch)
             path_return = np.array(path_return)
             path_value = np.array(path_value)
             logger.record_tabular('epoch', epoch)
@@ -278,27 +266,6 @@ class PPO:
             info = logger.init(restore=True, dir_name=self.restore_fd, session=self.sess, itr=itr)
         else:
             logger.init()
-
-    def execute(self, shares, time):
-        self.env.set_objective(share= shares, remained_time= time)
-        print(f'Set obj: {shares}, {time}')
-        observation = self.env.reset()
-        step = 0
-        rew = 0
-        for i in range(100):
-            action, value = self.policy.get_a_v(observation)
-            # action = np.array([0,0,-10])
-            next_ob, reward, next_terminal, _ = self.env.step(action)
-            rew += reward
-            step += 1
-            observation = next_ob
-            terminal = next_terminal
-            # print(terminal)
-            if terminal:
-                break
-                # print(ob)
-        print(f'Executed in step: {step}!')
-        return rew
 
 
     def init_opt(self):
