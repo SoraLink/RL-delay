@@ -36,6 +36,7 @@ class PredictedEnv:
     def step(self, action, value):
         #TODO use self.pool.add_sample(value, terminal, observation, action, reward)
         self.pair.set_predicted_action(action)
+        self.pair.value = value
         self.pair = self.env.step(self.pair)
         self.pair = self.predict_model.run(self.pair)
         if self.env.complete_data is not None:
@@ -57,6 +58,12 @@ class PredictedEnv:
     def train_model(self):
         pairs = self.data_set.get_instance_randomly(64)
         self.predict_model.train(pairs)
+
+    def get_pool(self):
+        pairs = self.data_set.pairs
+        for pair in pairs:
+            self.pool.add_sample(pair.value, pair.done, pair.predicted_state, pair.predicted_action, pair.reward) 
+        return self.pool
 
     # def __getattr__(self, attr):
     #     """Attributes not in Adapter are delegated to the minion"""
