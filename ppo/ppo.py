@@ -78,7 +78,7 @@ class PPO:
                  max_path_length=250,
                  policy_weight_decay=0,
                  policy_learning_rate=3e-4,
-                 n_updates=400,
+                 n_updates=10,
                  restore_fd=None):
         self.sess = session
         self.env = env
@@ -173,7 +173,7 @@ class PPO:
             assign_old_eq_new = self.opt_info['update_old_policy']
             assign_old_eq_new()
             acc = []
-            for i in range(5):
+            for i in range(self.n_updates):
                 for batch in d.iterate_once(optim_batchsize):
                     pass
                     acc.append(self.do_training(batch, 0))
@@ -305,6 +305,7 @@ class PPO:
         policy_update = self.opt_info['policy_update']
         _, total_loss, surrogate, value_loss, entropy_loss = policy_update(obss, actions, advantages, target_values,
                                                                            step)
+        self.env.train_model()
         logger.log('total_loss: %s' % total_loss)
         logger.log('surrogate: %s' % surrogate)
         logger.log('value_loss: %s' % value_loss)

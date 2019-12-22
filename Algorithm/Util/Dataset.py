@@ -1,4 +1,4 @@
-from random import Random
+import random
 class Dataset():
     def __init__(self, max_size, ):
         self.max_size = max_size
@@ -18,9 +18,9 @@ class Dataset():
     def get_instance_randomly(self, num):
         indexes = []
         for i in range(0, num):
-            indexes.append(Random.randint(0, len(self.pairs)))
-        results = list()
-        results.append(self.pairs[i] for i in indexes)
+            indexes.append(random.randint(0, len(self.pairs)-1))
+        
+        results = [self.pairs[i] for i in indexes]
         return results
 
 

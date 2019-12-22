@@ -51,7 +51,7 @@ class Model():
         return data
 
     def run(self, pair):
-        print(pair.actions)
+        # print(pair.actions)
         predicted_state = self.sess.run(self.output,feed_dict={
             self.init_state : [np.zeros(self.rnn_unit)],
             self.actions : [pair.actions],
@@ -62,6 +62,7 @@ class Model():
 
     def train(self, pairs):
         actions, states, target_states = extract(pairs)
+        print(self.actions, np.array(actions).shape)
         self.sess.run(self.update, feed_dict={
             self.actions: actions,
             self.output: states,
@@ -70,9 +71,10 @@ class Model():
 
 def extract(pairs):
     actions = list()
-    actions.append(pair.actions for pair in pairs)
+    print(type(pairs[0]))
+    actions += [pair.actions for pair in pairs]
     states = list()
-    states.append(pair.state for pair in pairs)
+    states += [pair.state for pair in pairs]
     target_states = list()
-    target_states.append(pair.label for pair in pairs)
+    target_states += [pair.label for pair in pairs]
     return [actions, states, target_states]

@@ -2,6 +2,7 @@ from Environment.registration import EnvRegistry
 from Model.NeuralNetwork.Model import Model
 from rllab.envs.env_spec import EnvSpec
 from Algorithm.Util.Dataset import Dataset
+import numpy as np
 
 class PredictedEnv:
     _initialised = False
@@ -41,6 +42,7 @@ class PredictedEnv:
         self.pair = self.predict_model.run(self.pair)
         if self.env.complete_data is not None:
             self.data_set.add_instance(self.env.complete_data)
+
         return self.pair.state, self.pair.reward, self.pair.done, {}
 
     def reset(self):
@@ -56,13 +58,15 @@ class PredictedEnv:
         )
 
     def train_model(self):
+        print(len(self.data_set.pairs))
         pairs = self.data_set.get_instance_randomly(64)
         self.predict_model.train(pairs)
 
     def get_pool(self):
+        
         pairs = self.data_set.pairs
         for pair in pairs:
-            self.pool.add_sample(pair.value, pair.done, pair.predicted_state, pair.predicted_action, pair.reward) 
+            self.pool.add_sample(pair.value, pair.done, pair.predicted_state.reshape(-1,), pair.predicted_action, pair.reward) 
         return self.pool
 
     # def __getattr__(self, attr):

@@ -22,8 +22,8 @@ def main():
     sess.run(init)
     act_dim = env.action_space.shape[0]
     obs_dim = env.observation_space.shape[0]
-    print("act_dim: ", act_dim)
-    print("obs_dim: ", obs_dim)
+    # print("act_dim: ", act_dim)
+    # print("obs_dim: ", obs_dim)
     # tf.set_random_seed(seed)
     policy = Policy(sess, obs_dim, act_dim, 'ppo', hidden_units=(64, 64))
 
@@ -40,7 +40,7 @@ def main():
             c2 = 0.5,
             lam = 0.95,
             gamma = 0.99,
-            max_local_step = 50,
+            max_local_step = 200,
                 )
 
     env.load_pool(dspg)

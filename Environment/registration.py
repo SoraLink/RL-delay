@@ -46,7 +46,6 @@ class EnvRegistry():
             pair = StateActionPair(observation, get_list_actions(self.action_queue))
             self.action_and_state.append(pair)
             self.last_observation = observation
-        self.done = done
     # time.sleep(0.01)
 
 
@@ -66,10 +65,9 @@ class EnvRegistry():
         return self.action_and_state.pop(0)
 
     def step(self, pair):
-        if(not self.done):
-            self.action_queue.append(pair)
-            self.run()
+        self.action_queue.append(pair)
         self.append_action(pair.predicted_action)
+        self.run()
         self.fill_zeors()
         self.assert_test()
         return self.action_and_state.pop(0)
