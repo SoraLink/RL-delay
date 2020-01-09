@@ -124,3 +124,5 @@ rl/RL/data/*
 
 # ignore vscode
 .vscode/
+
+ppo/data/
