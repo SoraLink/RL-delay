@@ -40,7 +40,7 @@ def main():
             c2 = 0.5,
             lam = 0.95,
             gamma = 0.99,
-            max_local_step = 200,
+            max_local_step = 2000,
                 )
 
     env.load_pool(dspg)
