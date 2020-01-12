@@ -7,11 +7,11 @@ class Dataset():
 
     def add_instance(self, pair):
         if len(self.pairs) >= self.max_size:
-            self.pairs[self.index] = pair
             if self.index < self.max_size:
                 self.index += 1
             else:
                 self.index = 0
+            self.pairs[self.index] = pair
         else:
             self.pairs.append(pair)
 
