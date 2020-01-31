@@ -38,11 +38,13 @@ class EnvRegistry():
             # self.action_queue[0].set_label(self.last_observation)
             pair = StateActionPair(observation, get_list_actions(self.action_queue[1:]))
             self.action_queue[0].set_info(reward, self.last_observation, done)
+            self.done = done
             self.action_and_state.append(pair)
             self.complete_data = self.action_queue.pop(0)
             self.last_observation = observation
         else:
             observation, reward, done, info = self.env.step(self.zero_action)
+            self.done = done
             pair = StateActionPair(observation, get_list_actions(self.action_queue))
             self.action_and_state.append(pair)
             self.last_observation = observation
@@ -62,7 +64,7 @@ class EnvRegistry():
             self.run()
         self.fill_zeors()
         self.assert_test()
-        return self.action_and_state.pop(0)
+        return self.action_and_state.pop(0), False
 
     def step(self, pair):
         self.action_queue.append(pair)
@@ -70,7 +72,7 @@ class EnvRegistry():
         self.run()
         self.fill_zeors()
         self.assert_test()
-        return self.action_and_state.pop(0)
+        return self.action_and_state.pop(0), self.done
 
     def fill_zeors(self):
         while len(self.action_and_state[0].actions) < self.transmit_delay+self.receive_delay:

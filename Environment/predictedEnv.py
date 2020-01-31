@@ -38,17 +38,17 @@ class PredictedEnv:
         #TODO use self.pool.add_sample(value, terminal, observation, action, reward)
         self.pair.set_predicted_action(action)
         self.pair.value = value
-        self.pair = self.env.step(self.pair)
+        self.pair, done = self.env.step(self.pair)
         self.pair = self.predict_model.run(self.pair)
         if self.env.complete_data is not None:
             self.data_set.add_instance(self.env.complete_data)
 
-        return self.pair.predicted_state, self.pair.reward, self.pair.done, {}
+        return self.pair.predicted_state, self.pair.reward, done, {}
 
     def reset(self):
-        pair = self.env.reset()
+        pair, done = self.env.reset()
         self.pair = self.predict_model.run(pair)
-        return self.pair.predicted_state
+        return self.pair.predicted_state, done
 
     @property
     def spec(self):
