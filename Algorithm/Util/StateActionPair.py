@@ -2,7 +2,7 @@ class StateActionPair:
     def __init__(self, state=None, actions=None, reward=None):
         self.state = state
         self.actions = actions
-        self.reward = None
+        self.reward = reward
         self.done = None
         self.label = None
         self.predicted_action = None
