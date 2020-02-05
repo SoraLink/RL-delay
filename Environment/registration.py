@@ -37,7 +37,7 @@ class EnvRegistry():
             observation, reward, done, info = self.env.step(self.action_queue[0].predicted_action)
             print(done)
             # self.action_queue[0].set_label(self.last_observation)
-            pair = StateActionPair(observation, get_list_actions(self.action_queue[1:]))
+            pair = StateActionPair(observation, get_list_actions(self.action_queue[1:]), reward)
             self.action_queue[0].set_info(reward, self.last_observation, done)
             self.done = done
             self.action_and_state.append(pair)
@@ -47,7 +47,7 @@ class EnvRegistry():
             observation, reward, done, info = self.env.step(self.zero_action)
             print(done)
             self.done = done
-            pair = StateActionPair(observation, get_list_actions(self.action_queue))
+            pair = StateActionPair(observation, get_list_actions(self.action_queue),reward)
             self.action_and_state.append(pair)
             self.last_observation = observation
     # time.sleep(0.01)

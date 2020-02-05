@@ -1,5 +1,5 @@
 class StateActionPair:
-    def __init__(self, state, actions):
+    def __init__(self, state=None, actions=None, reward=None):
         self.state = state
         self.actions = actions
         self.reward = None
