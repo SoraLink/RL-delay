@@ -5,10 +5,10 @@ sys.path.append(lib_path)
 lib_path = os.path.abspath(os.path.join('../..'))
 sys.path.append(lib_path)
 
-from ppo.ppo import PPO
-from ppo.mlp_stoch_policy import Policy
+from ppo_nm.ppo import PPO
+from ppo_nm.mlp_stoch_policy import Policy
 import tensorflow as tf
-from Environment.predictedEnv import PredictedEnv
+from Environment.registration import EnvRegistry
 from sac.misc.tf_utils import get_default_session
 
 import numpy as np
@@ -16,8 +16,8 @@ import tensorflow as tf
 
 def main():
     sess = get_default_session()
-    env = PredictedEnv("HopperPyBulletEnv-v0", 2, 2, sess)
-
+    env = EnvRegistry("HopperPyBulletEnv-v0", 2, 2)
+    env.name = "HopperPyBulletEnv-v0"
     init = tf.global_variables_initializer()
     sess.run(init)
     act_dim = env.action_space.shape[0]
@@ -40,10 +40,10 @@ def main():
             c2 = 0.5,
             lam = 0.95,
             gamma = 0.99,
-            max_local_step = 2000,
+            max_local_step = 200,
                 )
 
-    env.load_pool(dspg)
+
     dspg.train()
 
 

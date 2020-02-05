@@ -3,11 +3,16 @@ import os, sys
 lib_path = os.path.abspath(os.path.join('.'))
 sys.path.append(lib_path)
 
+lib_path = os.path.abspath(os.path.join('..'))
+sys.path.append(lib_path)
+
 import numpy as np
 import tensorflow as tf
 from .RLutils.dataset import Dataset
 from .RLutils import logger 
 import joblib
+from Algorithm.Util.StateActionPair import StateActionPair
+
 
 
 class SimpleReplayPool():
@@ -145,6 +150,7 @@ class PPO:
                 next_tuple, next_terminal = self.env.step(new_pair)
                 next_ob, reward = next_tuple.state, next_tuple.reward
                 step += 1
+                print(value, terminal, observation.shape, action.shape, reward)
                 pool.add_sample(value, terminal, observation, action, reward)
                 observation = next_ob
                 terminal = next_terminal
@@ -169,7 +175,7 @@ class PPO:
             # logger.record_tabular('path value (var)', path_value.var())
             joblib.dump(steps, './steps.pkl', compress=3)
 
-            pool = self.env.get_pool()
+            
             pool._compute_A(value)
             
             logger.log('computing!!')
