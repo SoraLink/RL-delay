@@ -165,14 +165,14 @@ class PPO:
             path_return = np.array(path_return)
             path_value = np.array(path_value)
             logger.record_tabular('epoch', epoch)
-            # logger.record_tabular('path reward', path_return.sum())
-            # logger.record_tabular('path reward (mean)', path_return.mean())
-            # logger.record_tabular('path reward (var)', path_return.var())
-            # logger.record_tabular('path value (sum)', path_value.sum())
-            # logger.record_tabular('path value (max)', path_value.max())
-            # logger.record_tabular('path value (min)', path_value.min())
-            # logger.record_tabular('path value (mean)', path_value.mean())
-            # logger.record_tabular('path value (var)', path_value.var())
+            logger.record_tabular('path reward', path_return.sum())
+            logger.record_tabular('path reward (mean)', path_return.mean())
+            logger.record_tabular('path reward (var)', path_return.var())
+            logger.record_tabular('path value (sum)', path_value.sum())
+            logger.record_tabular('path value (max)', path_value.max())
+            logger.record_tabular('path value (min)', path_value.min())
+            logger.record_tabular('path value (mean)', path_value.mean())
+            logger.record_tabular('path value (var)', path_value.var())
             joblib.dump(steps, './steps.pkl', compress=3)
 
             
@@ -196,7 +196,7 @@ class PPO:
                     acc.append(self.do_training(batch, 0))
 
             self.opt_info['update_old_policy']()
-            self.env.pool.reset()
+            pool.reset()
             total_loss = np.array(list(zip(*acc))[0])
             surrogate = np.array(list(zip(*acc))[1])
             value_loss = np.array(list(zip(*acc))[2])
@@ -322,7 +322,6 @@ class PPO:
         policy_update = self.opt_info['policy_update']
         _, total_loss, surrogate, value_loss, entropy_loss = policy_update(obss, actions, advantages, target_values,
                                                                            step)
-        self.env.train_model()
         logger.log('total_loss: %s' % total_loss)
         logger.log('surrogate: %s' % surrogate)
         logger.log('value_loss: %s' % value_loss)

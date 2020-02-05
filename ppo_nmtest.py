@@ -16,7 +16,7 @@ import tensorflow as tf
 
 def main():
     sess = get_default_session()
-    env = EnvRegistry("HopperPyBulletEnv-v0", 2, 2)
+    env = EnvRegistry("HopperPyBulletEnv-v0", 0, 0)
     env.name = "HopperPyBulletEnv-v0"
     init = tf.global_variables_initializer()
     sess.run(init)

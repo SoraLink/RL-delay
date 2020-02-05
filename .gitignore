@@ -126,3 +126,4 @@ rl/RL/data/*
 .vscode/
 
 ppo/data/
+ppo_nm/data/
