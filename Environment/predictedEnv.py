@@ -58,7 +58,7 @@ class PredictedEnv:
         )
 
     def train_model(self):
-        print(len(self.data_set.pairs))
+        # print(len(self.data_set.pairs))
         pairs = self.data_set.get_instance_randomly(64)
         self.predict_model.train(pairs)
 

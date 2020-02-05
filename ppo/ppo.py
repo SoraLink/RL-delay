@@ -122,7 +122,7 @@ class PPO:
         else:
             logger.init()
 
-        observation = self.env.reset()
+        observation, done = self.env.reset()
         terminal = True
         steps = []
         step = 0
@@ -140,10 +140,10 @@ class PPO:
                 terminal = next_terminal
                 # print(terminal)
                 if terminal:
-                    print(i)
+                    # print(i)
                     steps.append(step)
                     step = 0
-                    observation = self.env.reset()
+                    observation, done = self.env.reset()
                     # print(ob)
             path_return = np.array(path_return)
             path_value = np.array(path_value)
@@ -235,7 +235,7 @@ class PPO:
                 terminal = next_terminal
                 # print(terminal)
                 if terminal:
-                    print(i)
+                    # print(i)
                     steps.append(step)
                     step = 0
                     # observation = self.env.reset()

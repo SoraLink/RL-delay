@@ -14,7 +14,7 @@ def test():
     while True:
         action = env.env.action_space.sample()
         pair = env.step(action,1)
-        print(len(env.data_set.pairs))
+        print(pair[2])
     # print(type(env.env.spec))
     # while True:
     #     action = env.action_space.sample()

@@ -53,6 +53,7 @@ class Policy():
 
 
     def get_a_v(self, ob):
+        # print(ob)
         act,value =  self.sess.run((self.action, self.value), feed_dict={
             self.state: [ob]
         })

@@ -35,6 +35,7 @@ class EnvRegistry():
             raise Exception("length of action queue error")
         elif len(self.action_queue) == self.transmit_delay+1:
             observation, reward, done, info = self.env.step(self.action_queue[0].predicted_action)
+            print(done)
             # self.action_queue[0].set_label(self.last_observation)
             pair = StateActionPair(observation, get_list_actions(self.action_queue[1:]))
             self.action_queue[0].set_info(reward, self.last_observation, done)
@@ -44,6 +45,7 @@ class EnvRegistry():
             self.last_observation = observation
         else:
             observation, reward, done, info = self.env.step(self.zero_action)
+            print(done)
             self.done = done
             pair = StateActionPair(observation, get_list_actions(self.action_queue))
             self.action_and_state.append(pair)
