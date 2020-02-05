@@ -36,11 +36,11 @@ def main():
                 # restore_fd='2019-04-21_19-14-17',
                 policy_learning_rate = 0.001,
                 epoch_length = 500,
-            c1 = 1,
-            c2 = 0.5,
+            c1 = 0.5,
+            c2 = 0.01,
             lam = 0.95,
             gamma = 0.99,
-            max_local_step = 200,
+            max_local_step = 2000,
                 )
 
 

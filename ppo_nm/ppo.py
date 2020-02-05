@@ -12,6 +12,7 @@ from .RLutils.dataset import Dataset
 from .RLutils import logger 
 import joblib
 from Algorithm.Util.StateActionPair import StateActionPair
+import time
 
 
 
@@ -83,7 +84,7 @@ class PPO:
                  max_path_length=250,
                  policy_weight_decay=0,
                  policy_learning_rate=3e-4,
-                 n_updates=10,
+                 n_updates=2,
                  restore_fd=None):
         self.sess = session
         self.env = env
@@ -137,7 +138,7 @@ class PPO:
         terminal = True
         steps = []
         step = 0
-        while True:
+        for _ in range(1000):
             epoch += 1
             logger.push_prefix('epoch #%d | ' % epoch)
             logger.log("%s started" % epoch)
@@ -148,9 +149,12 @@ class PPO:
                 new_pair = StateActionPair()
                 new_pair.predicted_action = action
                 next_tuple, next_terminal = self.env.step(new_pair)
+                # time.sleep(0.1)
                 next_ob, reward = next_tuple.state, next_tuple.reward
+                path_return.append(reward)
+                path_value.append(value)
                 step += 1
-                print(value, terminal, observation.shape, action.shape, reward)
+                print(value, terminal, observation, action, reward)
                 pool.add_sample(value, terminal, observation, action, reward)
                 observation = next_ob
                 terminal = next_terminal

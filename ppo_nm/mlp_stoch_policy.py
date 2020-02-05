@@ -46,7 +46,7 @@ class Policy():
                     out = tf.layers.dense(out, hidden, name='fc%i' % (i + 1), activation=tf.nn.relu,
                                                           kernel_initializer=self.normc_initializer(1.0))
 
-                mean = tf.layers.dense(out, self.action_dim, name='final', kernel_initializer=self.normc_initializer(1.0))
+                mean = tf.layers.dense(out, self.action_dim, name='final', activation=tf.nn.tanh, kernel_initializer=self.normc_initializer(1.0))
                 logstd = tf.get_variable(shape=[1,self.action_dim],name = 'std', initializer=tf.zeros_initializer())
 
         return states,mean,logstd,value
