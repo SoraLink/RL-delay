@@ -154,7 +154,7 @@ class PPO:
                 path_return.append(reward)
                 path_value.append(value)
                 step += 1
-                print(value, terminal, observation, action, reward)
+                print(value, terminal, action, reward)
                 pool.add_sample(value, terminal, observation, action, reward)
                 observation = next_ob
                 terminal = next_terminal

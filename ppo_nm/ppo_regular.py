@@ -84,7 +84,7 @@ class PPO:
                  max_path_length=250,
                  policy_weight_decay=0,
                  policy_learning_rate=3e-4,
-                 n_updates=2,
+                 n_updates=1,
                  restore_fd=None):
         self.sess = session
         self.env = env
@@ -147,12 +147,13 @@ class PPO:
             for i in range(self.max_local_step):
                 action, value = self.policy.get_a_v(observation)
                 next_ob, reward, next_terminal, _ = self.env.step(action)
-                # time.sleep(0.1)
+                # reward = -reward
+                time.sleep(0.01)
                 self.env.render('human')
                 path_return.append(reward)
                 path_value.append(value)
                 step += 1
-                print(value, terminal, observation, action, reward)
+                print(value, reward)
                 pool.add_sample(value, terminal, observation, action, reward)
                 observation = next_ob
                 terminal = next_terminal
