@@ -51,15 +51,15 @@ def main2():
     import gym
     from ppo_nm.ppo_regular import PPO
     sess = get_default_session()
-    env = gym.make("HopperPyBulletEnv-v0")
+    env = gym.make("Walker2DPyBulletEnv-v0")
     env.render()
-    env.name = "HopperPyBulletEnv-v0"
+    env.name = "Walker2DPyBulletEnv-v0"
     # init = tf.global_variables_initializer()
     # sess.run(init)
     act_dim = env.action_space.shape[0]
     obs_dim = env.observation_space.shape[0]
-    # print("act_dim: ", act_dim)
-    # print("obs_dim: ", obs_dim)
+    print("act_dim: ", act_dim)
+    print("obs_dim: ", obs_dim)
     # tf.set_random_seed(seed)
     policy = Policy(sess, obs_dim, act_dim, 'ppo', hidden_units=(64, 64))
 
@@ -70,10 +70,10 @@ def main2():
                     old_policy=old_policy,
                     session=sess,
                 # restore_fd='2019-04-21_19-14-17',
-                policy_learning_rate = 0.001,
+                policy_learning_rate = 0.00,
                 epoch_length = 500,
             c1 = 0.5,
-            c2 = 0.01,
+            c2 = 0,
             lam = 0.95,
             gamma = 0.99,
             max_local_step = 2000,
