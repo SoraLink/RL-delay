@@ -7,14 +7,19 @@ from sac.misc.tf_utils import get_default_session
 
 def test():
     sess = get_default_session()
-    env = PredictedEnv("HopperPyBulletEnv-v0",2,2,sess)
+    env = PredictedEnv("HopperPyBulletEnv-v0",16,16,sess)
     init = tf.global_variables_initializer()
     sess.run(init)
     observation = env.reset()
     while True:
-        action = env.env.action_space.sample()
-        pair = env.step(action,1)
-        print(pair[2])
+        for i in range(1000):
+            action = env.env.action_space.sample()
+            predicted_state, reward, done, _ = env.step(action,1)
+            # print("reward: ", reward)
+            if done:
+                env.reset()
+        for i in range(64):
+            env.train_model()
     # print(type(env.env.spec))
     # while True:
     #     action = env.action_space.sample()
