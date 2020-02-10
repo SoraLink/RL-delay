@@ -16,7 +16,7 @@ class Policy():
         self.state,self.mu, self.logstd, self.value = self.create_network()
         self.sigma = tf.exp(self.logstd)
         self.shape = tf.placeholder(shape=(2),dtype=tf.int32)
-        self.action = self.mu + self.sigma * tf.random_normal(tf.shape(self.mu)) *0.3
+        self.action = self.mu + self.sigma * tf.random_normal(tf.shape(self.mu)) *0.05
 
         self.recurrent = False
 
@@ -46,7 +46,7 @@ class Policy():
                     out = tf.layers.dense(out, hidden, name='fc%i' % (i + 1), activation=tf.nn.relu,
                                                           kernel_initializer=self.normc_initializer(1.0))
 
-                mean = tf.layers.dense(out, self.action_dim, name='final', activation=tf.nn.tanh
+                mean = tf.layers.dense(0.01*out, self.action_dim, name='final', activation=tf.nn.tanh
                 , kernel_initializer=self.normc_initializer(0.01))
                 logstd = tf.get_variable(shape=[1,self.action_dim],name = 'std', initializer=tf.zeros_initializer())
 
@@ -70,7 +70,7 @@ class Policy():
 
     def neglogp(self, x):
         # print('x is',x) x is an action
-        return 0.5 * tf.reduce_sum(tf.square((self.action- self.mu) / self.sigma), axis=-1) \
+        return 0.5 * tf.reduce_sum(tf.square((x- self.mu) / self.sigma), axis=-1) \
                + 0.5 * np.log(2.0 * np.pi) * tf.to_float(tf.shape(x)[-1]) \
                + tf.reduce_sum(tf.log(self.sigma), axis=-1)
 

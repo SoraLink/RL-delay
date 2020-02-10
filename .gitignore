@@ -128,4 +128,3 @@ rl/RL/data/*
 ppo/data/
 ppo_nm/data/
 
-pybullet-gym/

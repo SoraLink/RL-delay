@@ -69,14 +69,15 @@ def main2():
                     policy=policy,
                     old_policy=old_policy,
                     session=sess,
-                # restore_fd='2019-04-21_19-14-17',
-                policy_learning_rate = 0.00,
+                # restore_fd='2020-02-07_20-07-32',
+                policy_learning_rate = 0.001,
                 epoch_length = 500,
-            c1 = 0.5,
-            c2 = 0,
+            c1 = 1,
+            c2 = 0.0,
             lam = 0.95,
             gamma = 0.99,
             max_local_step = 2000,
+            n_updates=10
                 )
 
 
