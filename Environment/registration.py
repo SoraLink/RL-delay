@@ -29,7 +29,7 @@ class EnvRegistry():
 
     def run(self):
         # print(len(self.action_and_state))
-        self.env.render("human")
+        # self.env.render("human")
         # self.observation, self.reward, self.done, self.info = self.env.step(self.action)
         if len(self.action_queue) > self.transmit_delay+1:
             raise Exception("length of action queue error")
