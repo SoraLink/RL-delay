@@ -35,7 +35,21 @@ class Runner(AbstractEnvRunner):
 
             # Take actions in env and look the results
             # Infos contains a ton of useful informations
-            self.obs[:], rewards, self.dones, infos = self.env.step(actions)
+            print(actions, actions.shape)
+            tmp = []
+            for action in actions:
+                tu = self.env.step(action)
+                tmp.append(tu)
+            tmp = list(zip(*tmp))
+            self.obs[:], rewards, self.dones, infos = tuple(tmp)
+            if True in self.dones:
+                self.obs[:] = self.env.reset()
+            self.obs = np.array(self.obs)
+            rewards = np.array(rewards)
+            self.dones = np.array(self.dones)
+            print(self.obs.shape)
+            print(self.dones)
+
             for info in infos:
                 maybeepinfo = info.get('episode')
                 if maybeepinfo: epinfos.append(maybeepinfo)
