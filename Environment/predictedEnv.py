@@ -23,15 +23,11 @@ class PredictedEnv:
 
         self._initialised = True
         self.name = task
+        self._load_pool()
 
-    def load_pool(self, algo):
+    def _load_pool(self):
+        self.pool = SimpleReplayPool()
         self.pool_isInit = True
-        self.pool = SimpleReplayPool(
-            observation_dim=algo.policy.state_dim,
-            action_dim=algo.policy.action_dim,
-            lam=algo.lam,
-            gamma=algo.gamma
-        )
 
 
     def step(self, action, value, neglogaction):
@@ -70,6 +66,10 @@ class PredictedEnv:
             self.pool.add_sample(pair.value, pair.done, pair.predicted_state.reshape(-1,), pair.predicted_action, pair.reward) 
         return self.pool
 
+    @property
+    def nsteps(self):
+        return self.pool.nsteps
+
     # def __getattr__(self, attr):
     #     """Attributes not in Adapter are delegated to the minion"""
     #     return getattr(self.minion, attr)
@@ -86,18 +86,19 @@ class PredictedEnv:
 
 class SimpleReplayPool():
     def __init__(
-            self, observation_dim, action_dim, lam, gamma):
-        self._observation_dim = observation_dim
-        self._action_dim = action_dim
+            self):
+        # self._observation_dim = observation_dim
+        # self._action_dim = action_dim
         self._A = []
         self._observations = []
         self._actions = []
         self._target_values = []
-        self.lam = lam
-        self.gama = gamma
+        # self.lam = lam
+        # self.gama = gamma
         self._terminal = []
         self._rewards = []
         self._neglogaction = []
+        self.nsteps = 0
 
     def reset(self):
         self._observations = []
@@ -106,6 +107,7 @@ class SimpleReplayPool():
         self._target_values = []
         self._terminal = []
         self._rewards = []
+        self.nsteps = 0
 
     def add_sample(self, value, terminal, observation=None, action=None, reward=None, neglogaction = None):
         self._observations.append([observation])
@@ -114,21 +116,23 @@ class SimpleReplayPool():
         self._actions.append([action])
         self._rewards.append([reward])
         self._neglogaction.append([neglogaction])
+        self.nsteps += 1
 
-    def _compute_A(self, nextvpred):
-        self._observations = np.array(self._observations, dtype=np.float32)
-        self._actions = np.array(self._actions, dtype=np.float32)
-        self._target_values = np.array(self._target_values, dtype=np.float32)
-        new = np.append(self._terminal, 0)
-        vpred = np.append(self._target_values, nextvpred)
-        print(vpred.shape)
-        T = len(self._rewards)
 
-        self._advantage = gaelam = np.empty(T, 'float32')
-        rew = self._rewards
-        lastgaelam = 0
-        for t in reversed(range(T)):
-            nonterminal = 1 - new[t + 1]
-            delta = rew[t] + self.gama * vpred[t + 1] * nonterminal - vpred[t]
-            gaelam[t] = lastgaelam = delta + self.gama * self.lam * nonterminal * lastgaelam
-        self._target_values = self._advantage + self._target_values
+    # def _compute_A(self, nextvpred):
+    #     self._observations = np.array(self._observations, dtype=np.float32)
+    #     self._actions = np.array(self._actions, dtype=np.float32)
+    #     self._target_values = np.array(self._target_values, dtype=np.float32)
+    #     new = np.append(self._terminal, 0)
+    #     vpred = np.append(self._target_values, nextvpred)
+    #     print(vpred.shape)
+    #     T = len(self._rewards)
+
+    #     self._advantage = gaelam = np.empty(T, 'float32')
+    #     rew = self._rewards
+    #     lastgaelam = 0
+    #     for t in reversed(range(T)):
+    #         nonterminal = 1 - new[t + 1]
+    #         delta = rew[t] + self.gama * vpred[t + 1] * nonterminal - vpred[t]
+    #         gaelam[t] = lastgaelam = delta + self.gama * self.lam * nonterminal * lastgaelam
+    #     self._target_values = self._advantage + self._target_values

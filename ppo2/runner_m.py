@@ -9,8 +9,8 @@ class AbstractEnvRunner(ABC):
         self.nenv = nenv = env.num_envs if hasattr(env, 'num_envs') else 1
         self.batch_ob_shape = (nenv*nsteps,) + env.observation_space.shape
         self.obs = np.zeros((nenv,) + env.observation_space.shape, dtype=env.observation_space.dtype.name)
-        tmp, _ = env.reset()
-        self.obs[:] = tmp.state
+        tmp, done = self.env.reset()
+        self.obs[:] = np.array([tmp])
         self.nsteps = nsteps
         self.states = model.initial_state
         self.dones = [False for _ in range(nenv)]
@@ -38,7 +38,7 @@ class Runner(AbstractEnvRunner):
     def run(self):
         assert self.env.pool_isInit
         # Here, we init the lists that will contain the mb of experiences
-        mb_obs, mb_rewards, mb_actions, mb_values, mb_dones, mb_neglogpacs =+ [],[],[],[],[],[]
+        mb_obs, mb_rewards, mb_actions, mb_values, mb_dones, mb_neglogpacs = [],[],[],[],[],[]
         mb_states = self.states
         epinfos = []
         # For n in range number of steps
@@ -46,26 +46,26 @@ class Runner(AbstractEnvRunner):
             # Given observations, get action value and neglopacs
             # We already have self.obs because Runner superclass run self.obs[:] = env.reset() on init
             actions, values, self.states, neglogpacs = self.model.step(self.obs, S=self.states, M=self.dones)
-            mb_obs.append(self.obs.copy())
-            mb_actions.append(actions)
-            mb_values.append(values)
-            mb_neglogpacs.append(neglogpacs)
-            mb_dones.append(self.dones)
+            # mb_obs.append(self.obs.copy())
+            # mb_actions.append(actions)
+            # mb_values.append(values)
+            # mb_neglogpacs.append(neglogpacs)
+            # mb_dones.append(self.dones)
 
             # Take actions in env and look the results
             # Infos contains a ton of useful informations
             print(actions, actions.shape)
             tmp = []
             for idx, action in enumerate(actions):
-                next_ob, _, next_terminal, _ = self.env.step(action, values[idx])
+                next_ob, _, next_terminal, _ = self.env.step(action, values[idx], neglogpacs[idx])
                 tmp.append((next_ob, next_terminal))
             tmp = list(zip(*tmp))
             self.obs[:], self.dones = tuple(tmp)
             if True in self.dones:
-                tmp, _ = self.env.reset()
-                self.obs[:] = tmp.state
+                tmp, done = self.env.reset()
+                self.obs[:] = np.array([tmp])
             self.obs = np.array(self.obs)
-            rewards = np.array(rewards)
+            # rewards = np.array(rewards)
             self.dones = np.array(self.dones)
             print(self.obs.shape)
             print(self.dones)
@@ -73,22 +73,22 @@ class Runner(AbstractEnvRunner):
             # for info in infos:
             #     maybeepinfo = info.get('episode')
             #     if maybeepinfo: epinfos.append(maybeepinfo)
-            mb_rewards.append(rewards)
+            # mb_rewards.append(rewards)
         #batch of steps to batch of rollouts
         pool = self.env.get_pool()
         mb_obs = np.asarray(pool._observations, dtype=self.obs.dtype)
-        mb_rewards = np.asarray(pool.rewards, dtype=np.float32)
+        mb_rewards = np.asarray(pool._rewards, dtype=np.float32)
         mb_actions = np.asarray(pool._actions)
-        mb_values = np.asarray([pool._target_values], dtype=np.float32)
-        mb_neglogpacs = np.asarray(mb_neglogpacs, dtype=np.float32)
-        mb_dones = np.asarray(mb_dones, dtype=np.bool)
+        mb_values = np.asarray(pool._target_values, dtype=np.float32)
+        mb_neglogpacs = np.asarray(pool._neglogaction, dtype=np.float32)
+        mb_dones = np.asarray(pool._terminal, dtype=np.bool)
         last_values = self.model.value(self.obs, S=self.states, M=self.dones)
 
         # discount/bootstrap off value fn
         mb_returns = np.zeros_like(mb_rewards)
         mb_advs = np.zeros_like(mb_rewards)
         lastgaelam = 0
-        for t in reversed(range(self.nsteps)):
+        for t in reversed(range(self.env.nsteps)):
             if t == self.nsteps - 1:
                 nextnonterminal = 1.0 - self.dones
                 nextvalues = last_values
@@ -98,6 +98,7 @@ class Runner(AbstractEnvRunner):
             delta = mb_rewards[t] + self.gamma * nextvalues * nextnonterminal - mb_values[t]
             mb_advs[t] = lastgaelam = delta + self.gamma * self.lam * nextnonterminal * lastgaelam
         mb_returns = mb_advs + mb_values
+
         return (*map(sf01, (mb_obs, mb_returns, mb_dones, mb_actions, mb_values, mb_neglogpacs)),
             mb_states, epinfos)
 # obs, returns, masks, actions, values, neglogpacs, states = runner.run()
