@@ -8,6 +8,7 @@ class StateActionPair:
         self.predicted_action = None
         self.predicted_state = None
         self.value = None
+        self.neglogaction = None
 
     def set_label(self, label):
         self.label = label

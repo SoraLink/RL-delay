@@ -11,7 +11,7 @@ class PredictedEnv:
         self.a = 1
         self.env = EnvRegistry(task, transmit_delay=t_delay, receive_delay=r_delay)
         # print("..................",self.env.observation_space.shape)
-        self.predict_model = Model(sess= sess,rnn_unit=32,nn_unit=32, delay=t_delay+r_delay,
+        self.predict_model = Model(sess= sess,rnn_unit=128,nn_unit=128, delay=t_delay+r_delay,
                                    observation_space=self.env.observation_space.shape[0],
                                    action_space=self.env.action_space.shape[0], scope="model",
                                    mask_value=0.00001)
@@ -34,9 +34,10 @@ class PredictedEnv:
         )
 
 
-    def step(self, action, value):
+    def step(self, action, value, neglogaction):
         #TODO use self.pool.add_sample(value, terminal, observation, action, reward)
         self.pair.set_predicted_action(action)
+        self.pair.neglogaction = neglogaction
         self.pair.value = value
         self.pair, done = self.env.step(self.pair)
         self.pair = self.predict_model.run(self.pair)
@@ -59,7 +60,7 @@ class PredictedEnv:
 
     def train_model(self):
         # print(len(self.data_set.pairs))
-        pairs = self.data_set.get_instance_randomly(64)
+        pairs = self.data_set.get_instance_randomly(128)
         self.predict_model.train(pairs)
 
     def get_pool(self):
@@ -96,6 +97,7 @@ class SimpleReplayPool():
         self.gama = gamma
         self._terminal = []
         self._rewards = []
+        self._neglogaction = []
 
     def reset(self):
         self._observations = []
@@ -105,12 +107,13 @@ class SimpleReplayPool():
         self._terminal = []
         self._rewards = []
 
-    def add_sample(self, value, terminal, observation=None, action=None, reward=None, ):
-        self._observations.append(observation)
-        self._target_values.append(value)
-        self._terminal.append(terminal)
-        self._actions.append(action)
-        self._rewards.append(reward)
+    def add_sample(self, value, terminal, observation=None, action=None, reward=None, neglogaction = None):
+        self._observations.append([observation])
+        self._target_values.append([value])
+        self._terminal.append([terminal])
+        self._actions.append([action])
+        self._rewards.append([reward])
+        self._neglogaction.append([neglogaction])
 
     def _compute_A(self, nextvpred):
         self._observations = np.array(self._observations, dtype=np.float32)
