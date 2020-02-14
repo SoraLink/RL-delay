@@ -28,12 +28,13 @@ class Runner(AbstractEnvRunner):
     run():
     - Make a mini batch
     """
-    def __init__(self, *, env, model, nsteps, gamma, lam):
+    def __init__(self, *, env, model, nsteps, gamma, lam, delay):
         super().__init__(env=env, model=model, nsteps=nsteps)
         # Lambda used in GAE (General Advantage Estimation)
         self.lam = lam
         # Discount rate
         self.gamma = gamma
+        self.delay = delay
 
     def run(self):
         assert self.env.pool_isInit
@@ -42,7 +43,7 @@ class Runner(AbstractEnvRunner):
         mb_states = self.states
         epinfos = []
         # For n in range number of steps
-        for _ in range(self.nsteps):
+        for _ in range(self.nsteps+self.delay):
             # Given observations, get action value and neglopacs
             # We already have self.obs because Runner superclass run self.obs[:] = env.reset() on init
             actions, values, self.states, neglogpacs = self.model.step(self.obs, S=self.states, M=self.dones)
@@ -81,15 +82,15 @@ class Runner(AbstractEnvRunner):
         mb_actions = np.asarray(pool._actions)
         mb_values = np.asarray(pool._target_values, dtype=np.float32)
         mb_neglogpacs = np.asarray(pool._neglogaction, dtype=np.float32)
+        # pool._terminal.append([False])
         mb_dones = np.asarray(pool._terminal, dtype=np.bool)
         last_values = self.model.value(self.obs, S=self.states, M=self.dones)
-
         # discount/bootstrap off value fn
         mb_returns = np.zeros_like(mb_rewards)
         mb_advs = np.zeros_like(mb_rewards)
         lastgaelam = 0
         for t in reversed(range(self.env.nsteps)):
-            if t == self.nsteps - 1:
+            if t == self.env.nsteps - 1:
                 nextnonterminal = 1.0 - self.dones
                 nextvalues = last_values
             else:

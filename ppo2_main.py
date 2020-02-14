@@ -30,13 +30,16 @@ def main2():
 def main3():
     sess = get_default_session()
     name = "HopperPyBulletEnv-v0"
-    env = PredictedEnv(name, 2, 2, sess)
+    forward_delay = 2
+    backward_delay = 2
+    env = PredictedEnv(name, forward_delay, backward_delay, sess)
     init = tf.global_variables_initializer()
     sess.run(init)
     env.name = name
     learn(network = 'mlp',
           env = env,
-          total_timesteps = 1e8)
+          total_timesteps = 1e8, 
+          forward_delay = forward_delay)
 
 
 if __name__ == "__main__":

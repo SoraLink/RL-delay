@@ -60,15 +60,14 @@ class PredictedEnv:
         self.predict_model.train(pairs)
 
     def get_pool(self):
-        
+        self.nsteps = 0
         pairs = self.data_set.pairs
         for pair in pairs:
-            self.pool.add_sample(pair.value, pair.done, pair.predicted_state.reshape(-1,), pair.predicted_action, pair.reward) 
+            self.nsteps += 1
+            self.pool.add_sample(pair.value, pair.done, pair.predicted_state.reshape(-1,), pair.predicted_action, pair.reward, pair.neglogaction) 
         return self.pool
 
-    @property
-    def nsteps(self):
-        return self.pool.nsteps
+
 
     # def __getattr__(self, attr):
     #     """Attributes not in Adapter are delegated to the minion"""
