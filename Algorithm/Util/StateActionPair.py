@@ -1,14 +1,17 @@
 class StateActionPair:
-    def __init__(self, state=None, actions=None, reward=None):
+    def __init__(self, state=None, actions=None, reward=None,
+                done = None, label = None, predicted_action = None,
+                predicted_state = None, value = None, neglogaction = None
+                ):
         self.state = state
         self.actions = actions
         self.reward = reward
-        self.done = None
-        self.label = None
-        self.predicted_action = None
-        self.predicted_state = None
-        self.value = None
-        self.neglogaction = None
+        self.done = done
+        self.label = label
+        self.predicted_action = predicted_action
+        self.predicted_state = predicted_state
+        self.value = value
+        self.neglogaction = neglogaction
 
     def set_label(self, label):
         self.label = label

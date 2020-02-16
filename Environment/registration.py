@@ -19,6 +19,7 @@ class EnvRegistry():
         self.receive_delay = receive_delay
         self.action_queue = []
         self.action_and_state = []
+        self.done = False
         if isinstance(self.action_space, gym.spaces.discrete.Discrete):
             self.zero_action = np.zeros(1)
         else:
@@ -66,7 +67,7 @@ class EnvRegistry():
             self.run()
         self.fill_zeors()
         self.assert_test()
-        return self.action_and_state.pop(0), False
+        return self.action_and_state.pop(0).state
 
     def step(self, pair):
         self.action_queue.append(pair)

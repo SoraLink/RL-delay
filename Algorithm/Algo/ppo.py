@@ -2,15 +2,16 @@ import os
 import time
 import numpy as np
 import os.path as osp
+from baselines import logger
 # from Algorithm.Util.baselines import logger
 from collections import deque
-from Algorithm.Util import explained_variance, set_global_seeds
-from baselines.common.policies import build_policy
+from Algorithm.Util.common import explained_variance, set_global_seeds
+from Algorithm.Util.common.policies import build_policy
 try:
     from mpi4py import MPI
 except ImportError:
     MPI = None
-from baselines.ppo2.runner import Runner
+from Algorithm.Model.runner import Runner
 
 
 def constfn(val):
@@ -101,7 +102,7 @@ def learn(*, network, env, total_timesteps, eval_env = None, seed=None, nsteps=2
 
     # Instantiate the model object (that creates act_model and train_model)
     if model_fn is None:
-        from baselines.ppo2.model import Model
+        from Algorithm.Model.model import Model
         model_fn = Model
 
     model = model_fn(policy=policy, ob_space=ob_space, ac_space=ac_space, nbatch_act=nenvs, nbatch_train=nbatch_train,

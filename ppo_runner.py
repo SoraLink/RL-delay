@@ -5,6 +5,7 @@ from ppo.ppo import PPO
 from ppo.mlp_stoch_policy import Policy
 import tensorflow as tf
 from Environment.predictedEnv import PredictedEnv
+from Environment.registration import EnvRegistry
 from sac.misc.tf_utils import get_default_session
 
 from Algorithm.Algo.ppo import learn
@@ -14,8 +15,9 @@ import tensorflow as tf
 
 def main():
     sess = get_default_session()
-    env = PredictedEnv("HopperPyBulletEnv-v0", 2, 2, sess)
+    env = EnvRegistry("HopperPyBulletEnv-v0", 0, 0)
     model = learn(
+        network='mlp',
         env = env,
         seed=None,
         total_timesteps=1000000
