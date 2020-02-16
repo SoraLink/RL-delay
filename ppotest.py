@@ -34,7 +34,7 @@ def main():
                     old_policy=old_policy,
                     session=sess,
                 # restore_fd='2019-04-21_19-14-17',
-                policy_learning_rate = 0.001,
+                policy_learning_rate = 0.0001,
                 epoch_length = 500,
             c1 = 1,
             c2 = 0.5,

@@ -25,8 +25,10 @@ class Model():
         self.action_space = action_space
         self.output, self.actions, self.init_observation, self.init_state = self.create_network()
         self.target_output = tf.placeholder(tf.float32, [None, self.observation_space])
+        self.init_output = tf.placeholder(tf.float32, [None, self.observation_space])
         self.loss = tf.reduce_mean(tf.square(self.output-self.target_output))
-        self.update_method = tf.train.AdamOptimizer(1e-3)
+        self.delay_loss = tf.reduce_mean(tf.square(self.init_output-self.target_output))
+        self.update_method = tf.train.AdamOptimizer(1e-5)
         self.update = self.update_method.minimize(self.loss)
 
     def create_network(self):
@@ -62,14 +64,24 @@ class Model():
 
     def train(self, pairs):
         actions, states, target_states, predicted_states = extract(pairs)
-        print(self.actions, np.array(actions).shape)
-        self.sess.run(self.update, feed_dict={
+        # _ , loss = self.sess.run((self.update, self.loss), feed_dict={
+        #     self.actions: actions,
+        #     self.output: predicted_states,
+        #     self.target_output: target_states,
+        #     self.init_observation : states,
+        #     self.init_state : [np.zeros(self.rnn_unit)]
+        # })
+        # print(self.actions, np.array(actions).shape)
+        _ , loss, delay_loss = self.sess.run((self.update, self.loss, self.delay_loss), feed_dict={
             self.actions: actions,
             self.output: predicted_states,
             self.target_output: target_states,
             self.init_observation : states,
+            self.init_output : states,
             self.init_state : [np.zeros(self.rnn_unit)]
         })
+        print("model loss: ", loss)
+        print("delay loss: ", delay_loss)
 
 def extract(pairs):
     actions = list()
