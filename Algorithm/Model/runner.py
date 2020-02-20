@@ -24,11 +24,11 @@ class Runner(AbstractEnvRunner):
         mb_states = self.states
         epinfos = []
         # For n in range number of steps
-        for _ in range(self.nsteps):
+        i = 0
+        while i < self.nsteps:
             # Given observations, get action value and neglopacs
             # We already have self.obs because Runner superclass run self.obs[:] = env.reset() on init
             actions, values, self.states, neglogpacs = self.model.step(self.obs, S=self.states, M=self.dones)
-            mb_obs.append(self.obs.copy())
             # mb_actions.append(actions)
             # mb_values.append(values)
             # mb_neglogpacs.append(neglogpacs)
@@ -37,21 +37,25 @@ class Runner(AbstractEnvRunner):
             # Take actions in env and look the results
             # Infos contains a ton of useful informations
             # self.obs[:], rewards, self.dones, infos = self.env.step(actions)
-            pair = StateActionPair(predicted_action=actions[0],value=values,neglogaction=neglogpacs)
-            self.obs[:] = self.env.step(pair)[0].state
-            data = self.env.complete_data
-            mb_actions.append([data.predicted_action])
-            mb_values.append(data.value)
-            mb_neglogpacs.append(data.neglogaction)
-            mb_dones.append(self.dones)
-            self.dones = [data.done]
-            self.dones = np.asarray(self.dones, dtype=np.bool)
-            if self.dones[0]:
-                self.obs[:] = self.env.reset()
+            # pair = StateActionPair(predicted_action=actions[0],value=values,neglogaction=neglogpacs)
+            self.obs[:] = self.env.step(actions[0], values, neglogpacs)[0]
+            data = self.env.env.complete_data
+            if data is not None:
+                i+=1
+                mb_obs.append([data.predicted_state.copy()])
+                mb_actions.append([data.predicted_action])
+                mb_values.append(data.value)
+                mb_neglogpacs.append(data.neglogaction)
+                mb_dones.append(self.dones)
+                self.last_obs = data.next_state
+                self.dones = [data.done]
+                self.dones = np.asarray(self.dones, dtype=np.bool)
+                if self.dones[0]:
+                    self.obs[:] = self.env.reset()
             # for info in infos:
             #     maybeepinfo = info.get('episode')
             #     if maybeepinfo: epinfos.append(maybeepinfo)
-            mb_rewards.append([data.reward])
+                mb_rewards.append([data.reward])
         #batch of steps to batch of rollouts
         mb_obs = np.asarray(mb_obs, dtype=self.obs.dtype)
         mb_rewards = np.asarray(mb_rewards, dtype=np.float32)
@@ -59,7 +63,7 @@ class Runner(AbstractEnvRunner):
         mb_values = np.asarray(mb_values, dtype=np.float32)
         mb_neglogpacs = np.asarray(mb_neglogpacs, dtype=np.float32)
         mb_dones = np.asarray(mb_dones, dtype=np.bool)
-        last_values = self.model.value(self.obs, S=self.states, M=self.dones)
+        last_values = self.model.value(self.last_obs, S=self.states, M=self.dones)
 
         # discount/bootstrap off value fn
         mb_returns = np.zeros_like(mb_rewards)

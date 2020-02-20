@@ -38,8 +38,9 @@ class EnvRegistry():
             observation, reward, done, info = self.env.step(self.action_queue[0].predicted_action)
             # print(done)
             # self.action_queue[0].set_label(self.last_observation)
-            pair = StateActionPair(observation, get_list_actions(self.action_queue[1:]), reward)
-            self.action_queue[0].set_info(reward, self.last_observation, done)
+            pair = StateActionPair(observation, get_list_actions(self.action_queue[1:]), reward, done=done)
+            self.action_queue[0].set_info(reward, self.last_observation)
+            self.action_queue[0].next_state=observation
             self.done = done
             self.action_and_state.append(pair)
             self.complete_data = self.action_queue.pop(0)
@@ -48,7 +49,7 @@ class EnvRegistry():
             observation, reward, done, info = self.env.step(self.zero_action)
             # print(done)
             self.done = done
-            pair = StateActionPair(observation, get_list_actions(self.action_queue),reward)
+            pair = StateActionPair(observation, get_list_actions(self.action_queue),reward, done=done)
             self.action_and_state.append(pair)
             self.last_observation = observation
     # time.sleep(0.01)
@@ -63,11 +64,12 @@ class EnvRegistry():
         self.env.reset()
         self.action_queue = []
         self.action_and_state = []
+        self.complete_data = None
         while len(self.action_and_state) <= self.receive_delay:
             self.run()
         self.fill_zeors()
         self.assert_test()
-        return self.action_and_state.pop(0).state
+        return self.action_and_state.pop(0)
 
     def step(self, pair):
         self.action_queue.append(pair)

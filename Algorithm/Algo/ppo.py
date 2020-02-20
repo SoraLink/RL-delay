@@ -127,6 +127,9 @@ def learn(*, network, env, total_timesteps, eval_env = None, seed=None, nsteps=2
     tfirststart = time.perf_counter()
 
     nupdates = total_timesteps//nbatch
+
+    reward_residue = 0
+
     for update in range(1, nupdates+1):
         assert nbatch % nminibatches == 0
         # Start timer
@@ -141,6 +144,17 @@ def learn(*, network, env, total_timesteps, eval_env = None, seed=None, nsteps=2
 
         # Get minibatch
         obs, returns, masks, actions, values, neglogpacs, states, epinfos = runner.run() #pylint: disable=E0632
+        rewards = list(returns)
+        dones = list(masks)
+        count = 0
+        total_reward = 0
+        for i in range(len(rewards)):
+            reward_residue+=rewards[i]
+            if dones[i]:
+                count+=1
+                total_reward+=reward_residue
+                reward_residue=0
+
         if eval_env is not None:
             eval_obs, eval_returns, eval_masks, eval_actions, eval_values, eval_neglogpacs, eval_states, eval_epinfos = eval_runner.run() #pylint: disable=E0632
 
@@ -152,6 +166,9 @@ def learn(*, network, env, total_timesteps, eval_env = None, seed=None, nsteps=2
 
         # Here what we're going to do is for each minibatch calculate the loss and append it.
         mblossvals = []
+        mblossvals.append((0,0,0,0,0))
+        total_model_loss = 0
+        model_loss_count = 0
         if states is None: # nonrecurrent version
             # Index of each element of batch_size
             # Create the indices array
@@ -161,6 +178,11 @@ def learn(*, network, env, total_timesteps, eval_env = None, seed=None, nsteps=2
                 np.random.shuffle(inds)
                 # 0 to batch_size with batch_train_size step
                 for start in range(0, nbatch, nbatch_train):
+                    model_loss = env.train_model()
+                    model_loss_count+=1
+                    total_model_loss+=model_loss
+                    if model_loss>0.12: 
+                        continue
                     end = start + nbatch_train
                     mbinds = inds[start:end]
                     slices = (arr[mbinds] for arr in (obs, returns, masks, actions, values, neglogpacs))
@@ -201,6 +223,11 @@ def learn(*, network, env, total_timesteps, eval_env = None, seed=None, nsteps=2
             logger.logkv("misc/explained_variance", float(ev))
             logger.logkv('eprewmean', safemean([epinfo['r'] for epinfo in epinfobuf]))
             logger.logkv('eplenmean', safemean([epinfo['l'] for epinfo in epinfobuf]))
+            logger.logkv("model_loss", total_model_loss/model_loss_count)
+            if count!=0:
+                logger.logkv('average reward', total_reward/count)
+            else:
+                logger.logkv('average reward', -1)
             if eval_env is not None:
                 logger.logkv('eval_eprewmean', safemean([epinfo['r'] for epinfo in eval_epinfobuf]) )
                 logger.logkv('eval_eplenmean', safemean([epinfo['l'] for epinfo in eval_epinfobuf]) )

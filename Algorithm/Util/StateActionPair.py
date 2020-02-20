@@ -12,6 +12,7 @@ class StateActionPair:
         self.predicted_state = predicted_state
         self.value = value
         self.neglogaction = neglogaction
+        self.next_state = None
 
     def set_label(self, label):
         self.label = label
@@ -28,8 +29,7 @@ class StateActionPair:
     def set_done(self, done):
         self.done = done
 
-    def set_info(self, reward, label, done):
-        self.set_done(done)
+    def set_info(self, reward, label):
         self.set_reward(reward)
         self.set_label(label)
 

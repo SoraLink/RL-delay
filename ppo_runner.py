@@ -15,12 +15,14 @@ import tensorflow as tf
 
 def main():
     sess = get_default_session()
-    env = EnvRegistry("HopperPyBulletEnv-v0", 0, 0)
+    init = tf.global_variables_initializer()
+    sess.run(init)
+    env = PredictedEnv("HopperPyBulletEnv-v0", 1, 1, sess)
     model = learn(
         network='mlp',
         env = env,
         seed=None,
-        total_timesteps=1000000
+        total_timesteps=100000000
     )
     
 
