@@ -120,8 +120,12 @@ class DRNNCell(GRUCell):
         outputs = K.bias_add(outputs, self.dnn_bias)
         activation = activations.get('sigmoid')
         outputs = activation(outputs)
-        outputs = K.dot(outputs, self.output_kernel)
-        inputs = K.bias_add(outputs, self.output_bias)
+        outputs = array_ops.concat([inputs, action],1)
+        outputs = K.dot(outputs, self.dnn_kernel)
+        outputs = K.bias_add(outputs, self.dnn_bias)
+        activation = activations.get('sigmoid')
+        outputs = activation(outputs)
+        inputs = K.dot(outputs, self.output_kernel)
 
         dp_mask = self.get_dropout_mask_for_cell(inputs, training, count=3)
         rec_dp_mask = self.get_recurrent_dropout_mask_for_cell(
@@ -224,6 +228,8 @@ class DRNNCell(GRUCell):
             hh = self.activation(x_h + recurrent_h)
         # previous and candidate state mixed by update gate
         h = z * h_tm1 + (1 - z) * hh
+
+        
         # print(h)
         # print(action)
         # h = tf.concat([h, outputs], 0)

@@ -181,7 +181,7 @@ def learn(*, network, env, total_timesteps, eval_env = None, seed=None, nsteps=2
                     model_loss = env.train_model()
                     model_loss_count+=1
                     total_model_loss+=model_loss
-                    if model_loss>0.12: 
+                    if model_loss>0.6: 
                         continue
                     end = start + nbatch_train
                     mbinds = inds[start:end]

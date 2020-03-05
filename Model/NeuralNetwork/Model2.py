@@ -28,7 +28,7 @@ class Model():
         # self.init_output = tf.placeholder(tf.float32, [None, self.observation_space])
         self.loss = tf.reduce_mean(tf.square(self.output-self.target_output))
         self.delay_loss = tf.reduce_mean(tf.square(self.init_observation-self.target_output))
-        self.update_method = tf.train.AdamOptimizer(1e-4)
+        self.update_method = tf.train.AdamOptimizer(3e-6)
         self.update = self.update_method.minimize(self.loss)
 
     def create_network(self):
@@ -38,7 +38,7 @@ class Model():
             init_state = tf.placeholder(tf.float32, [None, self.rnn_unit])
             cell = DRNNCell(self.observation_space, self.nn_unit)
             rnn = RNN(cell)
-            output = tf.keras.layers.Masking(mask_value=self.mask_value)(actions)
+            # output = tf.keras.layers.Masking(mask_value=self.mask_value)(actions)
             output = rnn(inputs=actions, initial_state=[init_observation])
             return output, actions, init_observation, init_state
 
@@ -79,6 +79,7 @@ class Model():
             self.init_observation : states,
             # self.init_state : [np.zeros(self.rnn_unit)]
         })
+        # print(loss)
         return loss
 
 def extract(pairs):

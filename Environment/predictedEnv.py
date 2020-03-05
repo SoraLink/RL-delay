@@ -11,7 +11,7 @@ class PredictedEnv:
         self.a = 1
         self.env = EnvRegistry(task, transmit_delay=t_delay, receive_delay=r_delay)
         # print("..................",self.env.observation_space.shape)
-        self.predict_model = Model(sess= sess,rnn_unit=64,nn_unit=64, delay=t_delay+r_delay,
+        self.predict_model = Model(sess= sess,rnn_unit=128,nn_unit=128, delay=t_delay+r_delay,
                                    observation_space=self.env.observation_space.shape[0],
                                    action_space=self.env.action_space.shape[0], scope="model",
                                    mask_value=0.00001)
@@ -31,6 +31,7 @@ class PredictedEnv:
 
 
     def step(self, action, value, neglogaction):
+        # action = np.clip(action, a_max=1.0, a_min=-1.0)
         #TODO use self.pool.add_sample(value, terminal, observation, action, reward)
         self.pair.set_predicted_action(action)
         self.pair.neglogaction = neglogaction
@@ -56,8 +57,11 @@ class PredictedEnv:
 
     def train_model(self):
         # print(len(self.data_set.pairs))
-        pairs = self.data_set.get_instance_randomly(128)
-        loss = self.predict_model.train(pairs)
+        loss=0
+        # for i in range(0,8):
+            # print(i)
+        pairs = self.data_set.get_instance_randomly(1004)
+        loss += self.predict_model.train(pairs)
         return loss
 
     def get_pool(self):
