@@ -22,4 +22,7 @@ class Dataset():
         results = [self.pairs[i] for i in indexes]
         return results
 
+    def clean(self):
+        self.pairs = []
+
 

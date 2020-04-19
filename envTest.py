@@ -13,14 +13,15 @@ def test():
     observation = env.reset()
     print(env.env.action_space.high, env.env.action_space.low)
     while True:
-        for i in range(1000):
+        for i in range(2048):
             action = env.env.action_space.sample()
             predicted_state, reward, done, _ = env.step(action,1,1)
             # print("reward: ", reward)
             if done:
                 env.reset()
         for i in range(64):
-            env.train_model()
+            loss = env.train_model()
+            print(loss)
     # print(type(env.env.spec))
     # while True:
     #     action = env.action_space.sample()
