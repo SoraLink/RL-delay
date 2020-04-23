@@ -80,7 +80,7 @@ class EnvRegistry():
         self.run()
         self.fill_zeors()
         self.assert_test()
-        return self.action_and_state.pop(0), self.done
+        return self.action_and_state.pop(0), self.done, self.trajectory
 
     def fill_zeors(self):
         while len(self.action_and_state[0].actions) < self.transmit_delay+self.receive_delay:

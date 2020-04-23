@@ -1,5 +1,5 @@
-from Environment.registration import EnvRegistry
-from Model.NeuralNetwork.Model2 import Model
+from Environment.registrationFNN import EnvRegistry
+from Model.NeuralNetwork.Model3 import Model
 from rllab.envs.env_spec import EnvSpec
 from Algorithm.Util.Dataset import Dataset
 import numpy as np
@@ -11,11 +11,12 @@ class PredictedEnv:
         self.a = 1
         self.env = EnvRegistry(task, transmit_delay=t_delay, receive_delay=r_delay)
         # print("..................",self.env.observation_space.shape)
-        self.predict_model = Model(sess= sess,rnn_unit=128,nn_unit=128, delay=t_delay+r_delay,
+        self.predict_model = Model(sess= sess,nn_unit=[128,128],
                                    observation_space=self.env.observation_space.shape[0],
                                    action_space=self.env.action_space.shape[0], scope="model",
-                                   mask_value=0.00001)
+                                   )
         self.data_set = Dataset(3000)
+        self.trajectorys = Dataset(3000)
         adapted_methods = ['observation_space', 'action_space']
         for value in adapted_methods:
             func = getattr(self.env.env, value)
@@ -36,7 +37,8 @@ class PredictedEnv:
         self.pair.set_predicted_action(action)
         self.pair.neglogaction = neglogaction
         self.pair.value = value
-        self.pair, done = self.env.step(self.pair)
+        self.pair, done, trajectory = self.env.step(self.pair)
+        self.trajectorys.add_instance(trajectory)
         self.pair = self.predict_model.run(self.pair)
         if self.env.complete_data is not None:
             self.data_set.add_instance(self.env.complete_data)
@@ -61,7 +63,7 @@ class PredictedEnv:
         loss=0
         # for i in range(0,8):
             # print(i)
-        pairs = self.data_set.get_instance_randomly(1024)
+        pairs = self.trajectorys.get_instance_randomly(1)
         loss += self.predict_model.train(pairs)
         # self.clean_dataset()
         return loss

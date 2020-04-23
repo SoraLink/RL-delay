@@ -151,7 +151,7 @@ def learn(*, network, env, total_timesteps, eval_env = None, seed=None, nsteps=2
         #test
         for i in range(64):
             model_loss = env.train_model()
-            print(model_loss)
+            # print(model_loss)
         # continue
         #/test
         for i in range(len(rewards)):

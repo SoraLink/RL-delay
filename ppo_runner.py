@@ -4,7 +4,7 @@ sys.path.append(lib_path)
 from ppo.ppo import PPO
 from ppo.mlp_stoch_policy import Policy
 import tensorflow as tf
-from Environment.predictedEnv import PredictedEnv
+from Environment.predictedEnvFNN import PredictedEnv
 from Environment.registration import EnvRegistry
 from sac.misc.tf_utils import get_default_session
 
@@ -17,7 +17,7 @@ def main():
     sess = get_default_session()
     init = tf.global_variables_initializer()
     sess.run(init)
-    env = PredictedEnv("HopperPyBulletEnv-v0", 8, 8, sess)
+    env = PredictedEnv("HopperPyBulletEnv-v0", 1, 1, sess)
     model = learn(
         network='mlp',
         env = env,
