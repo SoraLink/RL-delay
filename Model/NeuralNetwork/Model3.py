@@ -63,7 +63,7 @@ class Model():
             self.next_state: next_states,
             self.state : states,
         })
-        print(states, predicted_state, loss)
+        print(loss)
         return loss
 
 def extract(pairs):

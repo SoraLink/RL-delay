@@ -11,7 +11,7 @@ class PredictedEnv:
         self.a = 1
         self.env = EnvRegistry(task, transmit_delay=t_delay, receive_delay=r_delay)
         # print("..................",self.env.observation_space.shape)
-        self.predict_model = Model(sess= sess,nn_unit=[128,128],
+        self.predict_model = Model(sess= sess,nn_unit=[256,256,128],
                                    observation_space=self.env.observation_space.shape[0],
                                    action_space=self.env.action_space.shape[0], scope="model",
                                    )
@@ -63,7 +63,7 @@ class PredictedEnv:
         loss=0
         # for i in range(0,8):
             # print(i)
-        pairs = self.trajectorys.get_instance_randomly(1)
+        pairs = self.trajectorys.get_instance_randomly(1028)
         loss += self.predict_model.train(pairs)
         # self.clean_dataset()
         return loss

@@ -149,9 +149,9 @@ def learn(*, network, env, total_timesteps, eval_env = None, seed=None, nsteps=2
         count = 0
         total_reward = 0
         #test
-        for i in range(64):
-            model_loss = env.train_model()
-            # print(model_loss)
+        # for i in range(64):
+        #     model_loss = env.train_model()
+        #     print(model_loss)
         # continue
         #/test
         for i in range(len(rewards)):
@@ -184,11 +184,11 @@ def learn(*, network, env, total_timesteps, eval_env = None, seed=None, nsteps=2
                 np.random.shuffle(inds)
                 # 0 to batch_size with batch_train_size step
                 for start in range(0, nbatch, nbatch_train):
-                    # model_loss = env.train_model()
-                    # model_loss_count+=1
-                    # total_model_loss+=model_loss
-                    # if model_loss>0.6: 
-                    #     continue
+                    model_loss = env.train_model()
+                    model_loss_count+=1
+                    total_model_loss+=model_loss
+                    if model_loss>0.1: 
+                        continue
                     end = start + nbatch_train
                     mbinds = inds[start:end]
                     slices = (arr[mbinds] for arr in (obs, returns, masks, actions, values, neglogpacs))
@@ -230,7 +230,7 @@ def learn(*, network, env, total_timesteps, eval_env = None, seed=None, nsteps=2
             logger.logkv("misc/explained_variance", float(ev))
             logger.logkv('eprewmean', safemean([epinfo['r'] for epinfo in epinfobuf]))
             logger.logkv('eplenmean', safemean([epinfo['l'] for epinfo in epinfobuf]))
-            # logger.logkv("model_loss", total_model_loss/model_loss_count)
+            logger.logkv("model_los s", total_model_loss/model_loss_count)
             if count!=0:
                 logger.logkv('average reward', total_reward/count)
             else:
