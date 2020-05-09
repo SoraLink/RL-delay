@@ -19,7 +19,7 @@ def constfn(val):
         return val
     return f
 
-def learn(*, network, env, total_timesteps, eval_env = None, seed=None, nsteps=2048, ent_coef=0.0, lr=3e-4,
+def learn(*, network, env, total_timesteps,alph1=0.1, alph2=0.15, eval_env = None, seed=None, nsteps=2048, ent_coef=0.0, lr=3e-4,
             vf_coef=0.5,  max_grad_norm=0.5, gamma=0.99, lam=0.95,
             log_interval=10, nminibatches=4, noptepochs=4, cliprange=0.2,
             save_interval=0, load_path=None, model_fn=None, update_fn=None, init_fn=None, mpi_rank_weight=1, comm=None, **network_kwargs):
@@ -184,10 +184,10 @@ def learn(*, network, env, total_timesteps, eval_env = None, seed=None, nsteps=2
                 np.random.shuffle(inds)
                 # 0 to batch_size with batch_train_size step
                 for start in range(0, nbatch, nbatch_train):
-                    model_loss = env.train_model()
+                    model_loss, if_train_policy = env.train_model(alph1=alph1, alph2=alph2)
                     model_loss_count+=1
                     total_model_loss+=model_loss
-                    if model_loss>0.1: 
+                    if not if_train_policy:
                         continue
                     end = start + nbatch_train
                     mbinds = inds[start:end]

@@ -58,15 +58,20 @@ class PredictedEnv:
             action_space=self.env.action_space,
         )
 
-    def train_model(self):
+    def train_model(self,alph1,alph2):
         # print(len(self.data_set.pairs))
-        loss=0
         # for i in range(0,8):
             # print(i)
         pairs = self.trajectorys.get_instance_randomly(1028)
-        loss += self.predict_model.train(pairs)
+        loss = self.predict_model.train(pairs)
+        if loss < alph2:
+            return loss, True
+        else:
+            while(loss>alph1):
+                pairs = self.trajectorys.get_instance_randomly(1028)
+                loss = self.predict_model.train(pairs)
+            return loss, False
         # self.clean_dataset()
-        return loss
 
     def get_pool(self):
         self.nsteps = 0
