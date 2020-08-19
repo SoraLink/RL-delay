@@ -21,15 +21,19 @@ class Model():
         self.output, self.action, self.state= self.create_network()
         self.next_state = tf.placeholder(tf.float32, [None, self.observation_space])
         self.loss = tf.reduce_mean(tf.square(self.output-self.next_state))
-        self.update_method = tf.train.AdamOptimizer(3e-6)
+        self.update_method = tf.train.AdamOptimizer(1e-6)
         self.update = self.update_method.minimize(self.loss)
 
     def create_network(self):
         with tf.variable_scope(self.scope):
             action = tf.placeholder(tf.float32, [None, self.action_space])
+            out1 = tf.nn.tanh(tf.layers.dense(action, self.nn_unit[0], name="fc0a",
+                                                    kernel_initializer=tf.random_normal_initializer(stddev=1.0,mean=0)))
             state = tf.placeholder(tf.float32, [None, self.observation_space])
-            out = tf.concat([action, state],axis=1)
-            for i, hidden in enumerate(self.nn_unit):
+            out2 = tf.nn.tanh(tf.layers.dense(state, self.nn_unit[0], name="fc0s",
+                                                    kernel_initializer=tf.random_normal_initializer(stddev=1.0,mean=0)))
+            out = tf.concat([out1, out2],axis=1)
+            for i, hidden in enumerate(self.nn_unit[1:]):
                 out = tf.nn.tanh(tf.layers.dense(out, hidden, name="fc%i" % (i+1),
                                                     kernel_initializer=tf.random_normal_initializer(stddev=1.0,mean=0)))
             out = tf.nn.relu(tf.layers.dense(out, self.observation_space, name="fc%i" % (len(self.nn_unit)+1),
@@ -52,9 +56,9 @@ class Model():
             predicted_state = self.sess.run(self.output,feed_dict={
                 self.action : [action],
                 self.state : [predicted_state]
-            })
-            pair.set_predicted_state(predicted_state[0])
-            return pair
+            })[0]
+        pair.set_predicted_state(predicted_state[0])
+        return pair
 
     def train(self, pairs):
         actions, states, next_states = extract(pairs)
@@ -63,7 +67,7 @@ class Model():
             self.next_state: next_states,
             self.state : states,
         })
-        print(loss)
+        print(loss, end='\t')
         return loss
 
 def extract(pairs):

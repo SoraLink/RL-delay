@@ -1,5 +1,6 @@
 from Environment.registrationFNN import EnvRegistry
 from Model.NeuralNetwork.Model3 import Model
+from Model.NeuralNetwork.Model4 import Model as Model4
 from rllab.envs.env_spec import EnvSpec
 from Algorithm.Util.Dataset import Dataset
 import numpy as np
@@ -11,7 +12,11 @@ class PredictedEnv:
         self.a = 1
         self.env = EnvRegistry(task, transmit_delay=t_delay, receive_delay=r_delay)
         # print("..................",self.env.observation_space.shape)
-        self.predict_model = Model(sess= sess,nn_unit=[256,256,128],
+        self.predict_model = Model(sess= sess,nn_unit=[128,256,256],
+                                   observation_space=self.env.observation_space.shape[0],
+                                   action_space=self.env.action_space.shape[0], scope="model",
+                                   )
+        self.predict_model4 = Model4(sess= sess,nn_unit=128, rnn_unit=128,
                                    observation_space=self.env.observation_space.shape[0],
                                    action_space=self.env.action_space.shape[0], scope="model",
                                    )
@@ -39,7 +44,7 @@ class PredictedEnv:
         self.pair.value = value
         self.pair, done, trajectory = self.env.step(self.pair)
         self.trajectorys.add_instance(trajectory)
-        self.pair = self.predict_model.run(self.pair)
+        self.pair = self.predict_model4.run(self.pair)
         if self.env.complete_data is not None:
             self.data_set.add_instance(self.env.complete_data)
 
@@ -47,7 +52,7 @@ class PredictedEnv:
 
     def reset(self):
         pair = self.env.reset()
-        self.pair = self.predict_model.run(pair)
+        self.pair = self.predict_model4.run(pair)
         return self.pair.predicted_state
         # return self.pair.state
 
@@ -63,13 +68,15 @@ class PredictedEnv:
         # for i in range(0,8):
             # print(i)
         pairs = self.trajectorys.get_instance_randomly(1028)
-        loss = self.predict_model.train(pairs)
+        loss = self.predict_model4.train(pairs)
         if loss < alph2:
             return loss, True
         else:
             while(loss>alph1):
                 pairs = self.trajectorys.get_instance_randomly(1028)
-                loss = self.predict_model.train(pairs)
+                # loss = self.predict_model.train(pairs)
+                loss = self.predict_model4.train(pairs)
+                print(loss)
             return loss, False
         # self.clean_dataset()
 

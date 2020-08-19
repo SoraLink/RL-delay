@@ -17,7 +17,7 @@ def main():
     sess = get_default_session()
     init = tf.global_variables_initializer()
     sess.run(init)
-    env = PredictedEnv("HopperPyBulletEnv-v0", 1, 1, sess)
+    env = PredictedEnv("HopperPyBulletEnv-v0", 8, 8, sess)
     model = learn(
         network='mlp',
         env = env,
