@@ -13,6 +13,7 @@ class StateActionPair:
         self.value = value
         self.neglogaction = neglogaction
         self.next_state = None
+        self.action_m = None
 
     def set_label(self, label):
         self.label = label
