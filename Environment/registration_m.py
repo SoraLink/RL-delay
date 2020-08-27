@@ -19,27 +19,28 @@ class EnvRegistry():
         else:
             self.zero_action = np.zeros(self.env.action_space.shape)
         self.trans_queue = []
-        self.rcv_queue = [self.zero_action*self.receive_delay]
+        self.rcv_queue = [self.zero_action]*self.receive_delay
+        print()
         # self.spec.action_space = self.env.action_space
         # self.spec.observation_space = self.env.observation_space
 
     def run(self):
-        if len(self.action_queue) == self.transmit_delay+1:
-            observation, reward, done, info = self.env.step(self.rcv_queue.pop(-1))
-            self.trans_queue.append((observation, reward, done))
+        if len(self.rcv_queue) == self.receive_delay+1:
+            observation, reward, done, info = self.env.step(self.rcv_queue.pop(0))
+            self.trans_queue.append((observation, reward, done, info))
         else:
             observation, reward, done, info = self.env.step(self.zero_action)
-            self.trans_queue.append((observation, reward, done))
+            self.trans_queue.append((observation, reward, done, info))
 
     def reset(self):
         observation = self.env.reset()
         self.trans_queue = []
-        self.rcv_queue = [self.zero_action*self.receive_delay]
-        while(self.trans_queue<self.transmit_delay):
+        self.rcv_queue = [self.zero_action]*self.receive_delay
+        while(len(self.trans_queue)<self.transmit_delay):
             self.run()
         return observation
 
     def step(self, actions):
-        self.rcv_queue.append(actions[0])
+        self.rcv_queue.append(actions)
         self.run()
-        return self.trans_queue.pop(-1)
+        return self.trans_queue.pop(0)

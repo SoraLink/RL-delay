@@ -13,6 +13,7 @@ class Runner(AbstractEnvRunner):
         super().__init__(env=env, model=model, nsteps=nsteps)
         # Lambda used in GAE (General Advantage Estimation)
         self.lam = lam
+        self.env =env
         # Discount rate
         self.gamma = gamma
 
@@ -30,17 +31,19 @@ class Runner(AbstractEnvRunner):
             mb_actions.append(actions)
             mb_values.append(values)
             mb_neglogpacs.append(neglogpacs)
-            mb_dones.append(self.dones)
+            mb_dones.append([self.dones])
 
             # Take actions in env and look the results
             # Infos contains a ton of useful informations
-            self.obs[:], rewards, self.dones, infos = self.env.step(actions)
-            for info in infos:
-                maybeepinfo = info.get('episode')
-                if maybeepinfo: epinfos.append(maybeepinfo)
-            mb_rewards.append(rewards)
+            self.obs[:], rewards, self.dones, infos = self.env.step(actions[0])
+            # for info in infos:
+            #     maybeepinfo = info.get('episode')
+            #     if maybeepinfo: epinfos.append(maybeepinfo)
+            mb_rewards.append([rewards])
+            if(self.dones):
+                self.obs[:] = self.env.reset()
         #batch of steps to batch of rollouts
-        mb_obs = np.asarray(mb_obs, dtype=self.obs.dtype)
+        mb_obs = np.asarray(mb_obs, dtype=np.float32)
         mb_rewards = np.asarray(mb_rewards, dtype=np.float32)
         mb_actions = np.asarray(mb_actions)
         mb_values = np.asarray(mb_values, dtype=np.float32)
@@ -62,8 +65,13 @@ class Runner(AbstractEnvRunner):
             delta = mb_rewards[t] + self.gamma * nextvalues * nextnonterminal - mb_values[t]
             mb_advs[t] = lastgaelam = delta + self.gamma * self.lam * nextnonterminal * lastgaelam
         mb_returns = mb_advs + mb_values
+        counter = 0
+        for t in range(self.nsteps):
+            if(mb_dones[t]):
+                counter+=1
+        performance = sum(mb_rewards)/counter
         return (*map(sf01, (mb_obs, mb_returns, mb_dones, mb_actions, mb_values, mb_neglogpacs)),
-            mb_states, epinfos)
+            mb_states, performance)
 # obs, returns, masks, actions, values, neglogpacs, states = runner.run()
 def sf01(arr):
     """
