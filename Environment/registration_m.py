@@ -2,7 +2,6 @@ import gym  # open ai gym
 import pybulletgym  # register PyBullet enviroments with open ai gym
 from Algorithm.Util.StateActionPair import StateActionPair
 import numpy as np
-from rllab.envs.env_spec import EnvSpec
 
 class EnvRegistry():
 
