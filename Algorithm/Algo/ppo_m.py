@@ -4,13 +4,13 @@ import numpy as np
 import os.path as osp
 from baselines import logger
 from collections import deque
-from Algorithm.Util.common import explained_variance, set_global_seeds
-from Algorithm.Util.common.policies import build_policy
+from baselines.common import explained_variance, set_global_seeds
+from baselines.common.policies import build_policy
 try:
     from mpi4py import MPI
 except ImportError:
     MPI = None
-from Algorithm.Model.runner_m import Runner
+from Algorithm.runners.runner_m import Runner
 
 
 def constfn(val):
@@ -69,8 +69,8 @@ def learn(*, network, env, total_timesteps, eval_env = None, seed=1, nsteps=2048
     nenvs = 1
 
     # Get state_space and action_space
-    ob_space = env.env.observation_space
-    ac_space = env.env.action_space
+    ob_space = env.observation_space
+    ac_space = env.action_space
 
     # Calculate the batch_size
     nbatch = nenvs * nsteps

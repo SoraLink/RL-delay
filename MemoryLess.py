@@ -1,41 +1,36 @@
 import os, sys
 lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
-import pybulletgym  # register PyBullet enviroments with open ai gym
-from ppo.ppo import PPO
-from ppo.mlp_stoch_policy import Policy
 import tensorflow as tf
-from Environment.registration_m import EnvRegistry
-from sac.misc.tf_utils import get_default_session
-from baselines.common import tf_util as U
+from Environment.random_delay_env import RandomDelayEnv
 import pybullet
 from Algorithm.Algo.ppo_m import learn
 
 def main():
-    sess = get_default_session()
-    init = tf.global_variables_initializer()
-    sess.run(init)
-    env = EnvRegistry("HopperPyBulletEnv-v0", 8, 8)
-    model = learn(
-        network='mlp',
-        env = env,
-        seed=None,
-        total_timesteps=100000000
-    )
+    with tf.Session() as sess:
+        init = tf.global_variables_initializer()
+        sess.run(init)
+        env = RandomDelayEnv("HopperPyBulletEnv-v0",max=10,min=0,mu=5,sigma=1)
+        model = learn(
+            network='mlp',
+            env = env,
+            seed=None,
+            total_timesteps=100000000
+        )
 
-def main2():
-    import gym
-    sess = get_default_session()
-    init = tf.global_variables_initializer()
-    sess.run(init)
-    env = gym.make("HopperPyBulletEnv-v0")
-    env.render()
-    model = learn(
-        network='mlp',
-        env = env,
-        seed=None,
-        total_timesteps=100000000
-    )
+# def main2():
+#     import gym
+#     sess = get_default_session()
+#     init = tf.global_variables_initializer()
+#     sess.run(init)
+#     env = gym.make("HopperPyBulletEnv-v0")
+#     env.render()
+#     model = learn(
+#         network='mlp',
+#         env = env,
+#         seed=None,
+#         total_timesteps=100000000
+#     )
 
 # def test_microbatches():
         
