@@ -1,6 +1,6 @@
 from Environment.delay_env import Env
 import numpy as np
-from Util.math_util.random_num_generater_factory import NumberFactory
+from Util.math_util.random_num_generator_factory import NumberFactory
 import gym
 import pybullet
 
@@ -8,7 +8,7 @@ class RandomDelayEnv(Env):
 
     def __init__(self, task, distributiuon='normal', **kwargs):
         # super().__init__(task, transmit_delay=transmit_delay, receive_delay=receive_delay, num_of_episode=num_of_episode)
-        self.ran_num_gen = NumberFactory.get_num_generater(distributiuon, **kwargs)
+        self.ran_num_gen = NumberFactory.get_num_generator(distributiuon, **kwargs)
         self.env = gym.make(task)
         self.env.render("human")
         if isinstance(self.env.action_space, gym.spaces.discrete.Discrete):

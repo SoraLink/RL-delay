@@ -10,7 +10,7 @@ def main():
     with tf.Session() as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
-        env = RandomDelayEnv("HopperPyBulletEnv-v0",max=10,min=0,mu=5,sigma=1)
+        env = RandomDelayEnv("HopperPyBulletEnv-v0", distributiuon='possion',lam=2)
         model = learn(
             network='mlp',
             env = env,
