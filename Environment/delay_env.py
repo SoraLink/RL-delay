@@ -13,7 +13,7 @@ class Env():
 class DelayEnv(Env):
     def __init__(self, task, transmit_delay=1, receive_delay=1):
         self.env = gym.make(task)
-        self.env.render("human")
+        # self.env.render("human")
         # self.action_space = self.env.action_space
         # self.observation_space = self.env.observation_space
         # self.reward_range = self.env.reward_range

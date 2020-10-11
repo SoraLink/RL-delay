@@ -10,7 +10,7 @@ class RandomDelayEnv(Env):
         # super().__init__(task, transmit_delay=transmit_delay, receive_delay=receive_delay, num_of_episode=num_of_episode)
         self.ran_num_gen = NumberFactory.get_num_generator(distributiuon, **kwargs)
         self.env = gym.make(task)
-        self.env.render("human")
+        # self.env.render("human")
         if isinstance(self.env.action_space, gym.spaces.discrete.Discrete):
             self.zero_action = np.zeros(1)
         else:

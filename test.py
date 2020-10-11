@@ -1,9 +1,6 @@
 def main():
-    foo(1,2,3,a=1)
-
-def foo(d, *arg, **arg2):
-    print(arg)
-    print(arg2)
+    for i in range(10):
+        print(i)
     
 if __name__ == '__main__':
     main()

@@ -65,7 +65,7 @@ class Runner(AbstractEnvRunner):
             delta = mb_rewards[t] + self.gamma * nextvalues * nextnonterminal - mb_values[t]
             mb_advs[t] = lastgaelam = delta + self.gamma * self.lam * nextnonterminal * lastgaelam
         mb_returns = mb_advs + mb_values
-        counter = 0
+        counter = 1
         for t in range(self.nsteps):
             if(mb_dones[t]):
                 counter+=1

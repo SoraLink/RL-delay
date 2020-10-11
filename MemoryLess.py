@@ -6,16 +6,16 @@ from Environment.random_delay_env import RandomDelayEnv
 import pybullet
 from Algorithm.Algo.ppo_m import learn
 
-def main():
+def main(lam=0):
     with tf.Session() as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
-        env = RandomDelayEnv("HopperPyBulletEnv-v0", distributiuon='possion',lam=2)
+        env = RandomDelayEnv("HopperPyBulletEnv-v0", distributiuon='possion',lam=lam)
         model = learn(
             network='mlp',
             env = env,
             seed=None,
-            total_timesteps=100000000
+            total_timesteps=10000000
         )
 
 # def main2():
@@ -69,4 +69,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    for i in range(10):
+        main(i)
