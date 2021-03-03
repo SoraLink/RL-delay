@@ -13,3 +13,5 @@ class NumberFactory(AbstractNumberFactory):
             return generator.BinomialRandomNumGenerator(**kwargs)
         if distribution is 'possion':
             return generator.PossionRandomNumGenerator(**kwargs)
+        if distribution is 'threeAverage':
+            return generator.ThreeAverage(**kwargs)

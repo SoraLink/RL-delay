@@ -32,6 +32,13 @@ class PossionRandomNumGenerator(AbstractRandomNumGenerator):
 
     def get_random_num(self):
         return np.random.poisson(self.lam)
+
+class ThreeAverage(AbstractRandomNumGenerator):
+    def __init__(self, **kwargs):
+        self.p = kwargs['p']
+    
+    def get_random_num(self):
+        return np.random.randint(self.p-1, self.p+2)
         
         
 
