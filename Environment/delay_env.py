@@ -1,14 +1,19 @@
 import gym  # open ai gym
 import pybulletgym  # register PyBullet enviroments with open ai gym
 import numpy as np
+from gym.spaces import Box
+
 
 class Env():
-    def run(self):
+    def run(self, *args, **kwargs):
         raise NotImplementedError
-    def step(self):
+
+    def step(self, *args, **kwargs):
         raise NotImplementedError
-    def reset(self):
+
+    def reset(self, *args, **kwargs):
         raise NotImplementedError
+
 
 class DelayEnv(Env):
     def __init__(self, task, transmit_delay=1, receive_delay=1):
@@ -24,12 +29,12 @@ class DelayEnv(Env):
         else:
             self.zero_action = np.zeros(self.env.action_space.shape)
         self.trans_queue = []
-        self.rcv_queue = [self.zero_action]*self.receive_delay
-        for k,v in self.env.__dict__.items():
-            self.__setattr__(k,v)
+        self.rcv_queue = [self.zero_action] * self.receive_delay
+        for k, v in self.env.__dict__.items():
+            self.__setattr__(k, v)
 
     def run(self):
-        if len(self.rcv_queue) == self.receive_delay+1:
+        if len(self.rcv_queue) == self.receive_delay + 1:
             observation, reward, done, info = self.env.step(self.rcv_queue.pop(0))
             self.trans_queue.append((observation, reward, done, info))
         else:
@@ -39,8 +44,8 @@ class DelayEnv(Env):
     def reset(self):
         observation = self.env.reset()
         self.trans_queue = []
-        self.rcv_queue = [self.zero_action]*self.receive_delay
-        while(len(self.trans_queue)<self.transmit_delay):
+        self.rcv_queue = [self.zero_action] * self.receive_delay
+        while len(self.trans_queue) < self.transmit_delay:
             self.run()
         return observation
 
